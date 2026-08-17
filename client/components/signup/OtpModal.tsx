@@ -1,6 +1,6 @@
 "use client";
 
-import { verifyOtp } from "@/lib/auth";
+import { verifyOtp } from "@/features/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

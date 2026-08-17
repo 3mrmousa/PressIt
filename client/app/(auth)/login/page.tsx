@@ -1,6 +1,6 @@
 "use client";
 import { GoogleButton } from "@/components/shared/GoogleButton";
-import { login } from "@/lib/auth";
+import { login } from "@/features/auth";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

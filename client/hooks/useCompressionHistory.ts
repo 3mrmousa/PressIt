@@ -1,4 +1,4 @@
-import { getHistory } from "@/lib/compress";
+import { getHistory } from "@/features/compress";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCompressionHistory({

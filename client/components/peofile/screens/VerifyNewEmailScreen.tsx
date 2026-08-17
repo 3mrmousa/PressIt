@@ -1,6 +1,6 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
-import { verifyNewEmailOTP } from "@/lib/user";
+import { verifyNewEmailOTP } from "@/features/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { forgotPassword } from "@/lib/auth";
+import { forgotPassword } from "@/features/auth";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

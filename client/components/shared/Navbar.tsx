@@ -1,6 +1,6 @@
 "use client";
 import { useMe } from "@/hooks/useMe";
-import { logout } from "@/lib/auth";
+import { logout } from "@/features/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

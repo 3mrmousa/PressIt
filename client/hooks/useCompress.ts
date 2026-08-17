@@ -1,4 +1,4 @@
-import { compress } from "@/lib/compress";
+import { compress } from "@/features/compress";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useCompress() {

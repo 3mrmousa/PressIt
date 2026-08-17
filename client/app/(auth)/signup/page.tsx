@@ -1,7 +1,7 @@
 "use client";
 import { GoogleButton } from "@/components/shared/GoogleButton";
 import OtpModal from "@/components/signup/OtpModal";
-import { signup } from "@/lib/auth";
+import { signup } from "@/features/auth";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

@@ -1,7 +1,7 @@
 import {
   getSubscriptionStatus,
   SubscriptionStatusResponse,
-} from "@/lib/subscription";
+} from "@/features/subscription";
 import { useQuery } from "@tanstack/react-query";
 
 export function useSubscription(enabled = true) {

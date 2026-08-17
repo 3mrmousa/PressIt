@@ -1,6 +1,6 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
-import { updateProfile } from "@/lib/user";
+import { updateProfile } from "@/features/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 

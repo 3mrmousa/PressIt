@@ -7,7 +7,7 @@ export interface User {
   profilePicture: string | null;
   plan: "free" | "plus" | "pro";
   role: string;
-  paddleCustomerId: string | null;
+
   compressionsToday: number;
   createdAt: string;
   updatedAt: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { googleLogin } from "@/lib/auth";
+import { googleLogin } from "@/features/auth";
 import { GoogleLogin } from "@react-oauth/google";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";

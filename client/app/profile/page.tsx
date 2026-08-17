@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { SettingsModal } from "@/components/peofile/SettingsModal";
 import Link from "next/link";
-import { getPortalUrl } from "@/lib/subscription";
+import { getPortalUrl } from "@/features/subscription";
 
 
 export default function ProfilePage() {

@@ -1,6 +1,6 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
-import { updateEmail } from "@/lib/user";
+import { updateEmail } from "@/features/user";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 

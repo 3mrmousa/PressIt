@@ -1,6 +1,6 @@
 "use client";
 
-import { usePaddle } from "@/providers/PaddleProvider";
+
 import { useMe } from "@/hooks/useMe";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useState } from "react";
-import { createCheckout } from "@/lib/subscription";
+import { createCheckout } from "@/features/subscription";
 
 const PLANS = [
   {
@@ -45,7 +45,7 @@ const PLANS = [
       "Zero storage",
       "Priority processing",
     ],
-    priceId: process.env.NEXT_PUBLIC_PADDLE_PLUS_PRICE_ID!,
+    priceId: "plus-mock-id",
   },
   {
     id: "pro",
@@ -62,12 +62,12 @@ const PLANS = [
       "Priority processing",
       "Batch compression",
     ],
-    priceId: process.env.NEXT_PUBLIC_PADDLE_PRO_PRICE_ID!,
+    priceId: "pro-mock-id",
   },
 ];
 
 export default function PricingPage() {
-  const paddle = usePaddle();
+
   const { data: meData } = useMe();
   const user = meData?.data;
   const isLoggedIn = !!user;
@@ -78,23 +78,19 @@ export default function PricingPage() {
   const currentPlan = user?.plan || "free";
 
   const openCheckout = async (priceId: string) => {
-    if (!paddle || !user) return;
+    if (!user) return;
     setCheckoutError(null);
     setCheckoutLoading(true);
 
     try {
       // Create transaction server-side (locks quantity to 1, embeds userId)
       const { data } = await createCheckout(priceId);
-
-      // Open checkout with the pre-created transaction
-      paddle.Checkout.open({
-        transactionId: data.transactionId,
-        settings: {
-          theme: "light",
-        },
-      });
+      
+      // Mocked checkout flow
+      console.log("Mock checkout opened for:", data.transactionId);
+      alert("Payment system temporarily disabled.");
     } catch (err: any) {
-      console.error("Paddle checkout error:", err);
+      console.error("Checkout error:", err);
       setCheckoutError(err.message || "Failed to open checkout. Please try again.");
     } finally {
       setCheckoutLoading(false);
@@ -206,7 +202,7 @@ export default function PricingPage() {
               ) : (
                 <button
                   onClick={() => openCheckout(plan.priceId!)}
-                  disabled={!paddle || checkoutLoading}
+                  disabled={checkoutLoading}
                   className="w-full py-3 rounded-full text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {checkoutLoading ? "Loading..." : `Upgrade to ${plan.name}`}

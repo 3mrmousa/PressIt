@@ -1,10 +1,10 @@
-import { api } from "./api";
+import { client } from "@/lib/client";
 
 export interface SubscriptionData {
   _id?: string;
   plan: "plus" | "pro" | "free";
   status: "active" | "canceled" | "past_due" | "paused" | "trialing";
-  paddleSubscriptionId?: string;
+
   currentPeriodStart?: string;
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;
@@ -21,11 +21,11 @@ export interface PortalResponse {
 }
 
 export async function getSubscriptionStatus(): Promise<SubscriptionStatusResponse> {
-  return api<SubscriptionStatusResponse>("/subscription/status");
+  return client<SubscriptionStatusResponse>("/subscription/status");
 }
 
 export async function getPortalUrl(): Promise<PortalResponse> {
-  return api<PortalResponse>("/subscription/portal");
+  return client<PortalResponse>("/subscription/portal");
 }
 
 export interface CheckoutResponse {
@@ -34,7 +34,7 @@ export interface CheckoutResponse {
 }
 
 export async function createCheckout(priceId: string): Promise<CheckoutResponse> {
-  return api<CheckoutResponse>("/subscription/checkout", {
+  return client<CheckoutResponse>("/subscription/checkout", {
     method: "POST",
     body: JSON.stringify({ priceId }),
   });

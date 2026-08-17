@@ -1,5 +1,5 @@
 "use client";
-import { forgotPasswordOtp } from "@/lib/auth";
+import { forgotPasswordOtp } from "@/features/auth";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

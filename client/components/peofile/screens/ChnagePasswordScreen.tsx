@@ -1,6 +1,6 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
-import { changePassword } from "@/lib/user";
+import { changePassword } from "@/features/user";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

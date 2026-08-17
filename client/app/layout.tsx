@@ -4,7 +4,7 @@ import "./globals.css";
 import { LayoutClient } from "./LayoutClient";
 import QueryClientWrapper from "@/providers/QueryClientWrapper";
 import { GoogleProvider } from "@/providers/GoogleProvider";
-import { PaddleProvider } from "@/providers/PaddleProvider";
+
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 
@@ -40,9 +40,7 @@ export default function RootLayout({
 
         <QueryClientWrapper>
           <GoogleProvider>
-            <PaddleProvider>
               <LayoutClient>{children}</LayoutClient>
-            </PaddleProvider>
           </GoogleProvider>
         </QueryClientWrapper>
       </body>

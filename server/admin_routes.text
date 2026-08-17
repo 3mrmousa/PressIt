@@ -1,0 +1,16 @@
+Admin Routes Found in the Project
+=================================
+
+The following routes are specifically restricted to Admin (and Manager) roles:
+
+Admin Only Routes:
+------------------
+- POST /api/auth/admin/manager
+- DELETE /api/auth/admin/manager/:id
+
+Admin & Manager Routes:
+-----------------------
+- GET /api/users/all-users
+- GET /api/users/user/:id
+
+Note: Admins also have access to all standard authenticated user routes (e.g., /api/users/update-profile, /api/users/change-password, etc.), as they are authorized for the "user" role as well.

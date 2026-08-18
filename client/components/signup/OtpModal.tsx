@@ -1,9 +1,8 @@
 "use client";
 
 import { verifyOtp } from "@/features/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function OtpModal({
   email,
@@ -15,34 +14,29 @@ export default function OtpModal({
   onCloseAction: () => void;
 }) {
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const router = useRouter();
-
-  const queryClient = useQueryClient();
-
-  const verifyOtpMutation = useMutation({
-    mutationFn: ({ email, otp }: { email: string; otp: string }) =>
-      verifyOtp(email, otp),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.replace("/");
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      const res = await verifyOtp(email, otp);
+      if (res) {
+        window.location.href = "/";
+      } else {
+        toast.error("Failed to verify OTP");
+      }
+    } catch (error: any) {
+      toast.error(error.message || error.error || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center backdrop-blur-sm">
-      <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center justify-center">
-        {error && (
-          <p className="text-sm text-red-600 text-center my-5">
-            Failed to verify OTP: {error}
-          </p>
-        )}
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center backdrop-blur-sm z-50">
+      <div className="bg-white p-8 rounded-lg shadow-xl flex flex-col items-center justify-center z-50">
         <div className="flex flex-row items-start justify-between w-full">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">OTP Modal</h1>
@@ -54,6 +48,8 @@ export default function OtpModal({
             ×
           </p>
         </div>
+        <form onSubmit={handleSubmit}>
+
         <input
           type="text"
           placeholder="Enter OTP"
@@ -64,12 +60,13 @@ export default function OtpModal({
           }}
         />
         <button
-          type="button"
+          type="submit"
+          disabled={isLoading}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer mt-2"
-          onClick={() => verifyOtpMutation.mutate({ email, otp })}
         >
-          {verifyOtpMutation.isPending ? "Verifying..." : "Verify"}
+          {isLoading ? "Verifying..." : "Verify"}
         </button>
+        </form>
       </div>
     </div>
   );

@@ -3,36 +3,31 @@ import { GoogleButton } from "@/components/shared/GoogleButton";
 import { login } from "@/features/auth";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      login(email, password),
-
-    onSuccess: (user) => {
-      queryClient.setQueryData(["me"], user);
-      router.replace("/");
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ email, password });
+    try {
+      setIsLoading(true);
+      const res = await login(email, password);
+      if (res) {
+        toast.success("Logged in successfully");
+        window.location.href = "/";
+      }
+    } catch (error: any) {
+      toast.error(error.message || error.error || "Failed to login");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -103,17 +98,11 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={isLoading}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer mt-2"
             >
-              {mutation.isPending ? "Logging in..." : "Log in"}
+              {isLoading ? "Logging in..." : "Log in"}
             </button>
-
-            {error && (
-              <p className="text-sm text-red-600 text-center my-5">
-                Failed to login: {error}
-              </p>
-            )}
           </form>
 
           <div className="flex items-center gap-3 my-6">

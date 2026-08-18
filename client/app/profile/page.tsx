@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import { SettingsModal } from "@/components/peofile/SettingsModal";
 import Link from "next/link";
-import { getPortalUrl } from "@/features/fake-subscription";
 
 export default function ProfilePage() {
   const [settingsModal, setSettingsModal] = useState(false);
@@ -134,30 +133,12 @@ export default function ProfilePage() {
               </div>
 
               <div className="mt-6 pt-6 border-t border-purple-100">
-                {userInfo.plan === "free" ? (
-                  <Link
-                    href="/pricing"
-                    className="w-full block text-center py-3 rounded-full text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
-                  >
-                    ⚡ Upgrade Your Plan
-                  </Link>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await getPortalUrl();
-                        if (res.data.portalUrl) {
-                          window.open(res.data.portalUrl, "_blank");
-                        }
-                      } catch (err) {
-                        console.error("Failed to get portal link:", err);
-                      }
-                    }}
-                    className="w-full py-3 rounded-full text-sm font-semibold bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors duration-200 cursor-pointer"
-                  >
-                    Manage Subscription
-                  </button>
-                )}
+                <Link
+                  href="/pricing"
+                  className="w-full block text-center py-3 rounded-full text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
+                >
+                  ⚡ Upgrade Your Plan
+                </Link>
               </div>
             </div>
           </div>

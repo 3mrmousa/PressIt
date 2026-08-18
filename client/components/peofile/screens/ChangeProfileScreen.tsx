@@ -1,40 +1,54 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
 import { updateProfile } from "@/features/user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { useState } from "react";
+import { useMe } from "@/hooks/useMe";
 
 export default function ChangeProfileScreen({
   dispatchAction,
 }: {
   dispatchAction: (action: SettingsTab) => void;
 }) {
+  const { data } = useMe();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  const [error, setError] = useState("");
+  const [firstNamePlaceholder, setFirstNamePlaceholder] = useState(
+    data?.data?.firstName || ""
+  );
+  const [lastNamePlaceholder, setLastNamePlaceholder] = useState(
+    data?.data?.lastName || ""
+  );
 
-  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const updateProfileMutation = useMutation({
-    mutationFn: () => updateProfile(firstName, lastName),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-      dispatchAction("mainScreen");
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      const res = await updateProfile(firstName, lastName);
+      if (res) {
+        toast.success("Profile updated successfully");
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast.error(err.message || err.error || "Failed to update profile");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
       <div className="flex flex-row items-center justify-between w-full">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">
             Change Profile
           </h1>
+          <p className="text-sm text-gray-500">
+            Update your personal details below.
+          </p>
         </div>
         <p
           className="cursor-pointer text-red-500 text-4xl"
@@ -46,33 +60,40 @@ export default function ChangeProfileScreen({
         </p>
       </div>
       <div className="flex flex-col items-start gap-3">
-        {error && <p className="text-red-500 text-sm my-3">{error}</p>}
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            updateProfileMutation.mutate();
-          }}
+          onSubmit={handleSubmit}
           className="flex flex-col items-start gap-3 w-full"
         >
-          <input
-            type="text"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
-          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              First Name
+            </label>
+            <input
+              type="text"
+              placeholder={firstNamePlaceholder}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+            />
+          </div>
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input
+              type="text"
+              placeholder={lastNamePlaceholder}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+            />
+          </div>
           <button
             type="submit"
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg cursor-pointer w-full"
+            disabled={isLoading}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer mt-2 disabled:opacity-50"
           >
-            Update Profile
+            {isLoading ? "Updating..." : "Update Profile"}
           </button>
         </form>
       </div>

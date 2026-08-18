@@ -4,54 +4,42 @@ import OtpModal from "@/components/signup/OtpModal";
 import { signup } from "@/features/auth";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
-
+import toast from "react-hot-toast";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const [otpModalOpen, setOtpModalOpen] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: ({
-      firstName,
-      lastName,
-      email,
-      password,
-    }: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-    }) => signup(email, password, firstName, lastName),
-
-    onSuccess: (user) => {
-      setOtpModalOpen(true);
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutation.mutate({ firstName, lastName, email, password });
+    try {
+      setIsLoading(true);
+      const res = await signup(email, password, firstName, lastName);
+      if (res) {
+        setOtpModalOpen(true);
+        toast.success("OTP sent to your email successfully");
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (error: any) {
+      toast.error(error.message || error.error || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       <div className="py-12 min-h-screen flex items-center justify-center bg-linear-to-b from-white to-purple-50 px-4">
         <div className="flex flex-col lg:flex-row  w-full max-w-7xl items-center justify-center gap-8 xl:gap-16">
-          
-
-
           <div className="mt-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-8 z-10 shrink-0">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Create an account
@@ -148,18 +136,12 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              {error && (
-                <p className="text-sm text-red-600 text-center my-5">
-                  Failed to signup: {error}
-                </p>
-              )}
-
               <button
                 type="submit"
-                disabled={mutation.isPending}
+                disabled={isLoading}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer mt-2"
               >
-                {mutation.isPending ? "Signing up..." : "Signup"}
+                {isLoading ? "Signing up..." : "Signup"}
               </button>
             </form>
 
@@ -181,9 +163,6 @@ export default function SignupPage() {
               </Link>
             </p>
           </div>
-
-
-
         </div>
       </div>
       <OtpModal

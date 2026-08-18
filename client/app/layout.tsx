@@ -4,6 +4,7 @@ import "./globals.css";
 import { LayoutClient } from "./LayoutClient";
 import QueryClientWrapper from "@/providers/QueryClientWrapper";
 import { GoogleProvider } from "@/providers/GoogleProvider";
+import { Toaster } from "react-hot-toast";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -41,6 +42,32 @@ export default function RootLayout({
         <QueryClientWrapper>
           <GoogleProvider>
               <LayoutClient>{children}</LayoutClient>
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: "#9333ea",
+                    color: "#fff",
+                    borderRadius: "8px",
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: "#fff",
+                      secondary: "#9333ea",
+                    },
+                  },
+                  error: {
+                    style: {
+                      background: "#ef4444",
+                      color: "#fff",
+                    },
+                    iconTheme: {
+                      primary: "#fff",
+                      secondary: "#ef4444",
+                    },
+                  },
+                }}
+              />
           </GoogleProvider>
         </QueryClientWrapper>
       </body>

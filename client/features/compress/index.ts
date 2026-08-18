@@ -41,13 +41,13 @@ export async function getHistory({
 }
 
 export async function getImageById(id: string) {
-  return client(`/compress/image/${id}`, {
+  return client(`/compress/${id}`, {
     method: "GET",
   });
 }
 
 export async function deleteImage(id: string) {
-  return client(`/compress/image/${id}`, {
+  return client(`/compress/${id}`, {
     method: "DELETE",
   });
 }

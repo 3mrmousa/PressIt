@@ -46,17 +46,12 @@ export const Navbar = () => {
           <div className="flex items-center gap-3">
             <Link
               href="/pricing"
-              className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors duration-200 hidden md:block"
-            >
-              Pricing
-            </Link>
-            <span
               className={`text-xs ${planColors[userInfo.plan]} font-semibold px-2.5 py-0.5 rounded-full capitalize`}
             >
               {userInfo.plan}
-            </span>
+            </Link>
             <Link href="/profile" className="flex items-center gap-2">
-              <span className="hidden md:block">
+              <span>
                 {userInfo.profilePicture ? (
                   <img
                     src={userInfo.profilePicture}
@@ -83,12 +78,6 @@ export const Navbar = () => {
           </div>
         ) : (
           <div className="flex items-center gap-6">
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors duration-200"
-            >
-              Pricing
-            </Link>
             <Link
               href="/login"
               className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors duration-200"

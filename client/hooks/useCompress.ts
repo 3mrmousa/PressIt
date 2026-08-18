@@ -1,14 +1,14 @@
-import { compress } from "@/features/compress";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import { compress } from "@/features/compress";
+// import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useCompress() {
-  const queryClient = useQueryClient();
+// export function useCompress() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: compress,
+//   return useMutation({
+//     mutationFn: compress,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["compression-history"] });
-    },
-  });
-}
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ["compression-history"] });
+//     },
+//   });
+// }

@@ -7,8 +7,8 @@ import {
   handleCanceled,
   handleCreated,
   handleRenewed,
-} from "./fake-payment.service.js";
-import FakeSubscription from "./fake-payment.model.js";
+} from "./fake-subscription.service.js";
+import FakeSubscription from "./fake-subscription.model.js";
 
 function verifySignature(body: string, signature: string): boolean {
   const secret = process.env.FAKE_WEBHOOK_SECRET || "my-super-secret-key";
@@ -51,7 +51,7 @@ export const fakeCheckout = asyncHandler(
 
     res.status(200).json({
       success: true,
-      message: "Payment session created successfully",
+      message: "Subscription created successfully",
       data: {
         subscriptionId: fakeSubscriptionId,
         plan: priceId === "price_plus" ? "plus" : "pro",
@@ -62,38 +62,36 @@ export const fakeCheckout = asyncHandler(
 
 // ─── POST /webhook ───────────────────────────────────────
 
-export const fakeWebhook = asyncHandler(
-  async (req: Request, res: Response) => {
-    const signature = req.headers["x-webhook-signature"] as string;
-    if (!signature) {
-      throw new AppError("Missing signature", 400);
-    }
+export const fakeWebhook = asyncHandler(async (req: Request, res: Response) => {
+  const signature = req.headers["x-webhook-signature"] as string;
+  if (!signature) {
+    throw new AppError("Missing signature", 400);
+  }
 
-    const rawBody = JSON.stringify(req.body);
-    if (!verifySignature(rawBody, signature)) {
-      throw new AppError("Invalid signature", 400);
-    }
+  const rawBody = JSON.stringify(req.body);
+  if (!verifySignature(rawBody, signature)) {
+    throw new AppError("Invalid signature", 400);
+  }
 
-    const { eventType, data } = req.body;
-    console.log(`webhook received: ${eventType}`);
+  const { eventType, data } = req.body;
+  console.log(`webhook received: ${eventType}`);
 
-    switch (eventType) {
-      case "subscription.created":
-        await handleCreated(data);
-        break;
-      case "subscription.canceled":
-        await handleCanceled(data);
-        break;
-      case "subscription.renewed":
-        await handleRenewed(data);
-        break;
-      default:
-        console.log(`⚠️ Unhandled event: ${eventType}`);
-    }
+  switch (eventType) {
+    case "subscription.created":
+      await handleCreated(data);
+      break;
+    case "subscription.canceled":
+      await handleCanceled(data);
+      break;
+    case "subscription.renewed":
+      await handleRenewed(data);
+      break;
+    default:
+      console.log(`⚠️ Unhandled event: ${eventType}`);
+  }
 
-    res.status(200).json({ received: true });
-  },
-);
+  res.status(200).json({ received: true });
+});
 
 export const getStatus = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -124,7 +122,7 @@ export const getAdminRevenueStats = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const aggregationResult = await FakeSubscription.aggregate([
       { $match: { status: "active" } },
-      { $group: { _id: null, totalEarnings: { $sum: "$amount" } } }
+      { $group: { _id: null, totalEarnings: { $sum: "$amount" } } },
     ]);
     const totalEarnings = aggregationResult[0]?.totalEarnings || 0;
 
@@ -136,9 +134,11 @@ export const getAdminRevenueStats = asyncHandler(
       success: true,
       data: {
         totalEarnings,
-        totalActive: await FakeSubscription.countDocuments({ status: "active" }),
-        subscriptions
-      }
+        totalActive: await FakeSubscription.countDocuments({
+          status: "active",
+        }),
+        subscriptions,
+      },
     });
-  }
+  },
 );

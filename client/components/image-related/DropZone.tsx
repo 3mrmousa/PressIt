@@ -1,5 +1,6 @@
 "use client";
-import { useCompress } from "@/hooks/useCompress";
+import { compress } from "@/features/compress";
+// import { useCompress } from "@/hooks/useCompress";
 import { useEffect, useRef, useState } from "react";
 
 export function DropZone() {
@@ -18,7 +19,7 @@ export function DropZone() {
 
   const [loading, setLoading] = useState(false);
 
-  const compressMutation = useCompress();
+
 
   async function downloadCompressed() {
     if (!compressedPreview) return;
@@ -54,17 +55,15 @@ export function DropZone() {
     const timeout = setTimeout(async () => {
       try {
         setLoading(true);
-        const result: any = await compressMutation.mutateAsync({
+        const result = await compress({
           image: originalImage,
           percent: quality,
         });
 
-        // setCompressedPreview(result.data.cloudinaryUrl);
-        // setCompressedSize(result.data.compressedSize);
         if (compressedPreview.startsWith("blob:")) {
           URL.revokeObjectURL(compressedPreview);
         }
-        setCompressedPreview(URL.createObjectURL(result.blob));
+        setCompressedPreview(result.secureUrl);
         setCompressedSize(result.compressedSize);
         setError(null);
       } catch (error: any) {

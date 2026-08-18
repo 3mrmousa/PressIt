@@ -5,11 +5,12 @@ import compressToTargetSize from "../../utils/compressToTagregtSize.js";
 import { getSharpFormat } from "../../utils/getSharpFormat.js";
 import { uploadCompressedImageToCloudinary } from "../../utils/uploadToCloudinary.js";
 import Compress from "./compress.model.js";
+import { randomUUID } from "crypto";
 
 export const compressImageService = async (
   file: Express.Multer.File,
   percent: number,
-  userId: any
+  userId: any,
 ) => {
   const originalSize = file.size;
   const targetSize = originalSize * (1 - percent / 100);
@@ -20,21 +21,35 @@ export const compressImageService = async (
     getSharpFormat(file.mimetype),
   );
 
-  const uploaded = await uploadCompressedImageToCloudinary(compressedBuffer);
+  if (!userId) {
+    const base64 = compressedBuffer.toString("base64");
+    return {
+      _id: "guest_" + randomUUID(),
+      imageName: file.originalname,
+      originalSize,
+      compressedSize: compressedBuffer.length,
+      compressionPercentage:
+        100 - (compressedBuffer.length / originalSize) * 100,
+      originalFormat: file.mimetype,
+      compressedFormat: "image/jpeg",
+      images: {
+        compressedImage: {
+          publicId: "guest_mock_id" + randomUUID(),
+          secureUrl: `data:${file.mimetype};base64,${base64}`,
+        },
+      },
+    };
+  }
 
+  const uploaded = await uploadCompressedImageToCloudinary(compressedBuffer);
   const record = await Compress.create({
     user: userId,
-
     imageName: file.originalname,
     originalSize,
-
     compressedSize: compressedBuffer.length,
-
     compressionPercentage: 100 - (compressedBuffer.length / originalSize) * 100,
-
     originalFormat: file.mimetype,
     compressedFormat: "image/jpeg",
-
     images: {
       compressedImage: {
         publicId: uploaded.public_id,

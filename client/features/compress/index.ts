@@ -12,19 +12,19 @@ export async function compress({
   formData.append("compress-image", image);
   formData.append("percent", String(percent));
 
-  const blob = await client<Blob>(
+  const response = await client<any>(
     "/compress/compress",
     {
       method: "POST",
       body: formData,
     },
-    "blob",
+    "json",
   );
 
   return {
-    originalSize: image.size,
-    compressedSize: blob.size,
-    blob,
+    originalSize: response.data.originalSize,
+    compressedSize: response.data.compressedSize,
+    secureUrl: response.data.images.compressedImage.secureUrl,
   };
 }
 

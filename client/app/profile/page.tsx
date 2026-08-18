@@ -11,8 +11,7 @@ import {
 import { useState } from "react";
 import { SettingsModal } from "@/components/peofile/SettingsModal";
 import Link from "next/link";
-import { getPortalUrl } from "@/features/subscription";
-
+import { getPortalUrl } from "@/features/fake-subscription";
 
 export default function ProfilePage() {
   const [settingsModal, setSettingsModal] = useState(false);
@@ -45,9 +44,6 @@ export default function ProfilePage() {
     <>
       <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-linear-to-b from-white to-purple-50 p-6 pt-24 font-sans">
         <div className="flex flex-col lg:flex-row w-full max-w-7xl items-center justify-center gap-8 xl:gap-16">
-          
-
-
           <div className="relative bg-white rounded-3xl shadow-xl shadow-purple-500/10 w-full max-w-lg overflow-hidden border border-purple-100 shrink-0">
             <div className="h-32 bg-linear-to-r from-purple-500 to-purple-700"></div>
             <button
@@ -165,9 +161,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          
-
-
         </div>
       </div>
 

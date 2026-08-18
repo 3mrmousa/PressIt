@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useMe } from "@/hooks/useMe";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useState } from "react";
-import { createCheckout } from "@/features/subscription";
+import { createCheckout } from "@/features/fake-subscription";
 
 const PLANS = [
   {
@@ -67,7 +66,6 @@ const PLANS = [
 ];
 
 export default function PricingPage() {
-
   const { data: meData } = useMe();
   const user = meData?.data;
   const isLoggedIn = !!user;
@@ -85,13 +83,15 @@ export default function PricingPage() {
     try {
       // Create transaction server-side (locks quantity to 1, embeds userId)
       const { data } = await createCheckout(priceId);
-      
+
       // Mocked checkout flow
       console.log("Mock checkout opened for:", data.transactionId);
       alert("Payment system temporarily disabled.");
     } catch (err: any) {
       console.error("Checkout error:", err);
-      setCheckoutError(err.message || "Failed to open checkout. Please try again.");
+      setCheckoutError(
+        err.message || "Failed to open checkout. Please try again.",
+      );
     } finally {
       setCheckoutLoading(false);
     }

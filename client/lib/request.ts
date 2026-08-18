@@ -10,7 +10,7 @@ export async function request<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${baseUrl}/${endpoint}`, {
+  const res = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
     headers,
     cache: "no-store",

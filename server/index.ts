@@ -10,7 +10,7 @@ import AppError from "./utils/errors/AppError.js";
 import authRouter from "./modules/auth/auth.routes.js";
 import userRouter from "./modules/user/user.routes.js";
 import compressRouter from "./modules/compress/compress.routes.js";
-import fakePaymentRouter from "./modules/fake-payment/fake-payment.routes.js";
+import fakeSubscriptionRouter from "./modules/fake-subscription/fake-subscription.routes.js";
 import { csrfMiddleware } from "./middlewares/csrf.middleware.js";
 
 // import { startCleanupJob } from "./jops/cleanup.job.js";
@@ -43,7 +43,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/compress", compressRouter);
-app.use("/api/fake-payment", fakePaymentRouter);
+app.use("/api/fake-subscription", fakeSubscriptionRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));

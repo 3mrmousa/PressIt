@@ -1,6 +1,6 @@
 import AppError from "../../utils/errors/AppError.js";
 import User from "../user/user.model.js";
-import FakeSubscription from "./fake-payment.model.js";
+import FakeSubscription from "./fake-subscription.model.js";
 
 const PLAN_MAP: Record<string, { plan: "plus" | "pro"; amount: number }> = {
   price_plus: { plan: "plus", amount: 10 },
@@ -73,7 +73,7 @@ export const handleRenewed = async (data: any) => {
       currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   );
-  
+
   return {
     success: true,
     message: "Subscription renewed successfully",

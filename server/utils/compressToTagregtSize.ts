@@ -7,9 +7,9 @@ const compressToTargetSize = async (
 ): Promise<Buffer> => {
   let minQ = 1;
   let maxQ = 95;
-  let bestBuffer: Buffer = await sharp(inputBuffer)
-    .toFormat(outputFormat, { quality: maxQ })
-    .toBuffer();
+  
+  let bestBuffer: Buffer | null = null;
+  let smallestBuffer: Buffer | null = null;
 
   while (minQ <= maxQ) {
     const mid = Math.floor((minQ + maxQ) / 2);
@@ -17,12 +17,21 @@ const compressToTargetSize = async (
       .toFormat(outputFormat, { quality: mid })
       .toBuffer();
 
+    if (!smallestBuffer || output.length < smallestBuffer.length) {
+      smallestBuffer = output;
+    }
+
     if (output.length <= targetSize) {
       bestBuffer = output;
-      minQ = mid + 1;
+      minQ = mid + 1; // Try to get better quality
     } else {
-      maxQ = mid - 1;
+      maxQ = mid - 1; // Decrease quality
     }
+  }
+
+  // If we couldn't meet target size, return the smallest we got
+  if (!bestBuffer) {
+    return smallestBuffer || inputBuffer;
   }
 
   return bestBuffer;

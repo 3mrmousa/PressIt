@@ -1,7 +1,9 @@
 "use client";
 import { compress } from "@/features/compress";
-// import { useCompress } from "@/hooks/useCompress";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export function DropZone() {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -13,31 +15,22 @@ export function DropZone() {
   const [compressedPreview, setCompressedPreview] = useState<string>("");
   const [compressedSize, setCompressedSize] = useState<number>(0);
 
-  const [error, setError] = useState<string | null>(null);
-
-  const [quality, setQuality] = useState(80);
+  const [quality, setQuality] = useState(50);
 
   const [loading, setLoading] = useState(false);
-
-
 
   async function downloadCompressed() {
     if (!compressedPreview) return;
 
     const response = await fetch(compressedPreview);
-    const blob = await response.blob();
-
-    const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `compressed-${originalImage?.name}`;
+    link.href = compressedPreview;
+    link.download = "compressed-" + originalImage?.name;
 
     document.body.appendChild(link);
     link.click();
     link.remove();
-
-    URL.revokeObjectURL(url);
   }
 
   const handleFiles = (files: FileList | null) => {
@@ -60,14 +53,15 @@ export function DropZone() {
           percent: quality,
         });
 
-        if (compressedPreview.startsWith("blob:")) {
-          URL.revokeObjectURL(compressedPreview);
-        }
         setCompressedPreview(result.secureUrl);
         setCompressedSize(result.compressedSize);
-        setError(null);
+        toast.success("Image compressed successfully!");
       } catch (error: any) {
-        setError(error.message);
+        setCompressedPreview("");
+        setCompressedSize(0);
+        setOriginalPreview("");
+        setOriginalImage(null);
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -78,20 +72,25 @@ export function DropZone() {
 
   return originalPreview && compressedPreview ? (
     <div className="mt-10 space-y-4 mb-8">
-      {error && (
-        <div className="text-red-600 font-semibold text-center">{error}</div>
-      )}
-
       <div className="grid md:grid-cols-2 gap-8">
         <div className="flex flex-col items-center">
           <h3 className="font-semibold mb-3">Original</h3>
 
-          <img
-            src={originalPreview}
-            alt="Original"
-            className={`w-2/4 mx-auto object-contain rounded-lg border ${loading ? "animate-pulse" : ""}`}
-          />
-
+          <div className="relative">
+            <img
+              src={originalPreview}
+              alt="Original"
+              className={`w-2/4 max-h-180 mx-auto object-contain rounded-lg border ${loading ? "blur-sm" : ""}`}
+            />
+            {loading && (
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                className="absolute top-1/2 left-1/2 
+              transform -translate-x-1/2 -translate-y-1/2 text-2xl text-purple-600"
+              />
+            )}
+          </div>
           <p className="mt-3 text-sm text-gray-600">
             {(originalImage!.size / 1024).toFixed(2)} KB
           </p>
@@ -100,11 +99,21 @@ export function DropZone() {
         <div className="flex flex-col items-center">
           <h3 className="font-semibold mb-3">Compressed</h3>
 
-          <img
-            src={compressedPreview}
-            alt="Compressed"
-            className={`w-2/4 mx-auto object-contain rounded-lg border ${loading ? "animate-pulse" : ""}`}
-          />
+          <div className="relative">
+            <img
+              src={compressedPreview}
+              alt="Compressed"
+              className={`w-2/4 max-h-180 mx-auto object-contain rounded-lg border ${loading ? "blur-sm" : ""}`}
+            />
+            {loading && (
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                className="absolute top-1/2 left-1/2 
+                transform -translate-x-1/2 -translate-y-1/2 text-2xl text-purple-600"
+              />
+            )}
+          </div>
 
           <p className="mt-3 text-sm text-gray-600">
             {compressedSize ? (compressedSize / 1024).toFixed(2) : "0"} KB
@@ -145,11 +154,21 @@ export function DropZone() {
       />
       {originalImage ? (
         <div className="flex flex-col items-center">
-          <img
-            src={originalPreview}
-            alt="Original"
-            className={`w-2/4 mx-auto object-contain rounded-lg border ${loading ? "animate-pulse" : ""}`}
-          />
+          <div className="relative">
+            <img
+              src={originalPreview}
+              alt="Original"
+              className={`w-2/4 max-h-180 mx-auto object-contain rounded-lg border ${loading ? "blur-sm" : ""}`}
+            />
+            {loading && (
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                className="absolute top-1/2 left-1/2 
+                transform -translate-x-1/2 -translate-y-1/2 text-2xl text-purple-600"
+              />
+            )}
+          </div>
 
           <p className="mt-3 text-sm text-gray-600">
             {(originalImage!.size / 1024).toFixed(2)} KB

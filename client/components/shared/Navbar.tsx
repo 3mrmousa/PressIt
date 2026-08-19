@@ -50,6 +50,12 @@ export const Navbar = () => {
             >
               {userInfo.plan}
             </Link>
+            <Link
+              href="/history"
+              className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors duration-200"
+            >
+              History
+            </Link>
             <Link href="/profile" className="flex items-center gap-2">
               <span>
                 {userInfo.profilePicture ? (

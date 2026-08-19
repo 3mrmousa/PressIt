@@ -23,7 +23,7 @@ export const compressImage = asyncHandler(
     if (isNaN(percent) || percent < 1 || percent > 99) {
       throw new AppError("percent must be between 1 and 99", 400);
     }
-    const record = await compressImageService(file, percent, req.user?._id || null);
+    const record = await compressImageService(file, percent, req.user?._id || null, req.user?.history || false);
 
     res.json({
       success: true,

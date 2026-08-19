@@ -11,6 +11,7 @@ export interface IUser extends Document {
   role: "user" | "manager" | "admin";
   plan: "free" | "plus" | "pro";
   profilePicture: string | null;
+  history: boolean;
 
   createdAt: Date;
   updatedAt: Date;

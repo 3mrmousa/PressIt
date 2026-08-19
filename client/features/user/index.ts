@@ -37,3 +37,19 @@ export async function changePassword(
     body: JSON.stringify({ currentPassword, newPassword }),
   });
 }
+
+export async function toggleHistory() {
+  return client("/users/toggle-history", {
+    method: "PATCH",
+  });
+}
+
+export async function uploadProfilePicture(file: File) {
+  const formData = new FormData();
+  formData.append("profile-picture", file);
+
+  return client("/users/upload-profile-picture", {
+    method: "PATCH",
+    body: formData,
+  });
+}

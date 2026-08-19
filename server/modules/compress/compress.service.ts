@@ -11,17 +11,19 @@ export const compressImageService = async (
   file: Express.Multer.File,
   percent: number,
   userId: any,
+  history: boolean,
 ) => {
   const originalSize = file.size;
   const targetSize = originalSize * (1 - percent / 100);
 
+  const outputFormat = getSharpFormat(file.mimetype);
   const compressedBuffer = await compressToTargetSize(
     file.buffer,
     targetSize,
-    getSharpFormat(file.mimetype),
+    outputFormat,
   );
 
-  if (!userId) {
+  if (!userId || !history) {
     const base64 = compressedBuffer.toString("base64");
     return {
       _id: "guest_" + randomUUID(),
@@ -31,11 +33,11 @@ export const compressImageService = async (
       compressionPercentage:
         100 - (compressedBuffer.length / originalSize) * 100,
       originalFormat: file.mimetype,
-      compressedFormat: "image/jpeg",
+      compressedFormat: `image/${outputFormat}`,
       images: {
         compressedImage: {
           publicId: "guest_mock_id" + randomUUID(),
-          secureUrl: `data:${file.mimetype};base64,${base64}`,
+          secureUrl: `data:image/${outputFormat};base64,${base64}`,
         },
       },
     };
@@ -49,7 +51,7 @@ export const compressImageService = async (
     compressedSize: compressedBuffer.length,
     compressionPercentage: 100 - (compressedBuffer.length / originalSize) * 100,
     originalFormat: file.mimetype,
-    compressedFormat: "image/jpeg",
+    compressedFormat: `image/${outputFormat}`,
     images: {
       compressedImage: {
         publicId: uploaded.public_id,

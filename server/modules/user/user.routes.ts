@@ -16,6 +16,7 @@ import {
   updateEmail,
   deleteUser,
   uploadProfilePicture,
+  toggleHistory,
 } from "./user.controller.js";
 import {
   verifyCurrentEmailOTP,
@@ -72,6 +73,8 @@ userRouter.patch(
   uploadSingleImageForProfile,
   uploadProfilePicture,
 );
+
+userRouter.patch("/toggle-history", authorizeRoles("user"), toggleHistory);
 
 userRouter.delete("/delete-user", authorizeRoles("user"), deleteUser);
 

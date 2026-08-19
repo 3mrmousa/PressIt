@@ -7,6 +7,7 @@ export interface User {
   profilePicture: string | null;
   plan: "free" | "plus" | "pro";
   role: string;
+  history: boolean;
 
   compressionsToday: number;
   createdAt: string;
@@ -20,7 +21,12 @@ export interface ApiError {
 
 export interface MeResponse {
   success: boolean;
-  data: User | null;
+  data: (User & {
+    usage: {
+      count: number;
+      limit: number;
+    };
+  }) | null;
 }
 
 export type SettingsTab =

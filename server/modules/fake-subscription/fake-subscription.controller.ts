@@ -32,14 +32,32 @@ export const fakeCheckout = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     if (!req.user) throw new AppError("Unauthorized", 401);
 
+    if (req.user.role === "admin" || req.user.role === "manager") {
+      throw new AppError("You are not allowed to purchase subscription", 403);
+    }
+
     const { priceId } = req.body;
     if (!priceId || !["price_plus", "price_pro"].includes(priceId)) {
       throw new AppError("Use price_plus or price_pro", 400);
     }
 
-    if (!["price_plus", "price_pro"].includes(priceId)) {
-      throw new AppError("Invalid price ID", 400);
+    if (req.user.plan === "pro" && priceId === "price_pro") {
+      throw new AppError("You already have a pro subscription", 400);
     }
+
+    if (req.user.plan === "plus" && priceId === "price_plus") {
+      throw new AppError("You already have a plus subscription", 400);
+    }
+
+    //Downgrade
+    if (req.user.plan === "pro" && priceId === "price_plus") {
+      throw new AppError("You already have a pro subscription", 400);
+    }
+
+    // //Upgrade
+    // if (req.user.plan === "plus" && priceId === "price_pro") {
+    //   throw new AppError("You already have a plus subscription", 400);
+    // }
 
     const fakeSubscriptionId = `sub-${crypto.randomUUID()}`;
 

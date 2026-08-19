@@ -202,3 +202,24 @@ export const uploadProfilePicture = asyncHandler(
     });
   },
 );
+
+export const toggleHistory = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      throw new AppError("Not authorized", 401);
+    }
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    user.history = !user.history;
+    await user.save();
+    res.json({
+      success: true,
+      data: {
+        history: user.history,
+      },
+    });
+  },
+);

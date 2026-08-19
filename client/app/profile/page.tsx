@@ -7,9 +7,12 @@ import {
   faCalendarAlt,
   faCheckCircle,
   faGears,
+  faChartLine,
+  faHistory,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import { SettingsModal } from "@/components/peofile/SettingsModal";
+import { SettingsModal } from "@/components/profile/SettingsModal";
+import { EditProfilePictureButton } from "@/components/profile/EditProfilePictureButton";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -55,8 +58,8 @@ export default function ProfilePage() {
                 className="text-2xl text-white absolute top-5 right-5 z-1 hover:scale-125 transition-all duration-200 cursor-pointer"
               />
             </button>
-            <div className="relative px-8 flex justify-center -mt-16 mb-4">
-              <div className="h-32 w-32 bg-white rounded-full p-2 shadow-lg">
+            <div className="px-8 flex justify-center -mt-16 mb-4">
+              <div className="relative h-32 w-32 bg-white rounded-full p-2 shadow-lg">
                 {userInfo.profilePicture ? (
                   <img
                     src={userInfo.profilePicture}
@@ -70,6 +73,7 @@ export default function ProfilePage() {
                     </span>
                   </div>
                 )}
+                <EditProfilePictureButton />
               </div>
             </div>
 
@@ -117,7 +121,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex items-center gap-4 md:col-span-2 transition-transform hover:-translate-y-1 hover:shadow-md">
+                <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
                   <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                     <FontAwesomeIcon icon={faCalendarAlt} />
                   </div>
@@ -128,6 +132,52 @@ export default function ProfilePage() {
                     <p className="text-sm font-semibold text-gray-800">
                       {memberSince}
                     </p>
+                  </div>
+                </div>
+                <div className="bg-red-50/50 rounded-2xl p-4 border border-red-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+                  <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <FontAwesomeIcon icon={faHistory} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-red-400 font-medium uppercase tracking-wider">
+                      History
+                    </p>
+                    <p className="text-sm font-semibold text-red-800">
+                      {userInfo.history ? "Enabled" : "Disabled"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className=" md:col-span-2 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+                  <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <FontAwesomeIcon icon={faChartLine} />
+                  </div>
+                  <div className="flex-1 w-full">
+                    <p className="text-xs text-emerald-600/70 font-medium uppercase tracking-wider">
+                      Daily Usage
+                    </p>
+                    <div className="flex justify-between items-center mt-0.5">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {userInfo.usage?.count || 0} /{" "}
+                        {userInfo.usage?.limit || 0}
+                      </p>
+                      <p className="text-xs font-semibold text-emerald-600">
+                        {Math.round(
+                          ((userInfo.usage?.count || 0) /
+                            (userInfo.usage?.limit || 1)) *
+                            100,
+                        )}
+                        %
+                      </p>
+                    </div>
+                    <div className="w-full bg-emerald-200/50 rounded-full h-1.5 mt-1 overflow-hidden">
+                      <div
+                        className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(((userInfo.usage?.count || 0) / (userInfo.usage?.limit || 1)) * 100, 100)}%`,
+                        }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
               </div>

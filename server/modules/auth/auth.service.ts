@@ -1,6 +1,7 @@
 import AppError from "../../utils/errors/AppError.js";
 import User from "../user/user.model.js";
-
+import redis from "../../config/redis.js";
+import { LIMITS } from "../../config/limits.js";
 
 export const loginUserService = async (email: string, password: string) => {
   const user = await User.findOne({ email });
@@ -11,13 +12,21 @@ export const loginUserService = async (email: string, password: string) => {
 };
 
 export const getMeService = async (userId: string) => {
-  const user = await User.findById(userId).select("-password");
+  const user = await User.findById(userId).select("-password").lean();
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
 
-  return user;
+  const tier = user.plan || "free";
+  const limit = LIMITS[tier] ?? LIMITS.guest;
+  const today = new Date().toISOString().split("T")[0];
+  const key = `compress:${tier}:${userId}:${today}`;
+
+  const countStr = await redis.get(key);
+  const count = countStr ? parseInt(countStr, 10) : 0;
+
+  return { ...user, usage: { count, limit } };
 };
 
 export const createManagerService = async (

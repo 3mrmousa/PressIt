@@ -1,5 +1,6 @@
 "use client";
 import { SettingsTab } from "@/lib/types/types";
+import { SaveHistoryToggle } from "../SaveHistoryToggle";
 
 export default function MainScreen({
   state,
@@ -47,6 +48,8 @@ export default function MainScreen({
         >
           Change Password
         </button>
+
+        <SaveHistoryToggle />
       </div>
     </>
   );

@@ -11,7 +11,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useState } from "react";
-import { createCheckout } from "@/features/fake-subscription";
+import { cancelSubscription, createCheckout } from "@/features/fake-subscription";
+import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PLANS = [
   {
@@ -44,7 +46,7 @@ const PLANS = [
       "Zero storage",
       "Priority processing",
     ],
-    priceId: "plus-mock-id",
+    priceId: "price_plus",
   },
   {
     id: "pro",
@@ -61,37 +63,44 @@ const PLANS = [
       "Priority processing",
       "Batch compression",
     ],
-    priceId: "pro-mock-id",
+    priceId: "price_pro",
   },
 ];
 
 export default function PricingPage() {
   const { data: meData } = useMe();
+  const queryClient = useQueryClient();
   const user = meData?.data;
   const isLoggedIn = !!user;
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const { data: subData } = useSubscription(isLoggedIn);
   const currentPlan = user?.plan || "free";
 
-  const openCheckout = async (priceId: string) => {
+  const handleCheckout = async (priceId: string) => {
     if (!user) return;
-    setCheckoutError(null);
     setCheckoutLoading(true);
 
     try {
-      // Create transaction server-side (locks quantity to 1, embeds userId)
-      const { data } = await createCheckout(priceId);
-
-      // Mocked checkout flow
-      console.log("Mock checkout opened for:", data.transactionId);
-      alert("Payment system temporarily disabled.");
+      await createCheckout(priceId);
+      toast.success("Checkout processed successfully");
+      queryClient.invalidateQueries({ queryKey: ["me"] });
     } catch (err: any) {
-      console.error("Checkout error:", err);
-      setCheckoutError(
-        err.message || "Failed to open checkout. Please try again.",
-      );
+      toast.error(err.message || "Something went wrong. Please try again later.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!user) return;
+    setCheckoutLoading(true);
+
+    try {
+      await cancelSubscription();
+      toast.success("Checkout processed successfully");
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong. Please try again later.");
     } finally {
       setCheckoutLoading(false);
     }
@@ -111,11 +120,7 @@ export default function PricingPage() {
         </p>
       </div>
 
-      {checkoutError && (
-        <div className="mb-8 px-6 py-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium text-center max-w-md">
-          {checkoutError}
-        </div>
-      )}
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
         {PLANS.map((plan) => {
@@ -201,7 +206,7 @@ export default function PricingPage() {
                 </Link>
               ) : (
                 <button
-                  onClick={() => openCheckout(plan.priceId!)}
+                  onClick={() => handleCheckout(plan.priceId!)}
                   disabled={checkoutLoading}
                   className="w-full py-3 rounded-full text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -212,6 +217,11 @@ export default function PricingPage() {
           );
         })}
       </div>
+      {isLoggedIn && (
+        <p className="mt-10 text-sm text-gray-400 text-center">
+          You can cancel from <button onClick={handleCancel} disabled={checkoutLoading} className="font-semibold text-md text-purple-600 cursor-pointer">here</button>
+        </p>
+      )}
     </div>
   );
 }

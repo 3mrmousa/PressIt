@@ -61,6 +61,6 @@ export async function resetPassword(email: string, newPassword: string) {
   });
 }
 
-export async function getMe(): Promise<MeResponse> {
+export async function getMe() {
   return client<MeResponse>("/auth/me");
 }

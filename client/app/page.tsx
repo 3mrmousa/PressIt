@@ -1,6 +1,6 @@
 import { DropZone } from "@/components/image-related/DropZone";
 import { BodyText } from "@/components/ui/BodyText";
-import { Button } from "@/components/ui/Button";
+import { MyLink } from "@/components/ui/MyLink";
 import { Card } from "@/components/ui/Card";
 import { HeaderStyled } from "@/components/ui/HeaderStyled";
 import { HeaderText } from "@/components/ui/HeaderText";
@@ -25,7 +25,7 @@ export default function Home() {
           the quality, and download — in seconds.
         </BodyText>
 
-        <Button href="#dropzone">Start compressing</Button>
+        <MyLink href="#dropzone">Start compressing</MyLink>
       </div>
       <div className="flex w-full items-center justify-center px-4">
 

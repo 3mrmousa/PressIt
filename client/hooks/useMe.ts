@@ -6,5 +6,7 @@ export function useMe() {
   return useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: getMe,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
   });
 }

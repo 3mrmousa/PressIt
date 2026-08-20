@@ -13,8 +13,6 @@ import {
   loginUser,
   logoutUser,
   getMe,
-  createManager,
-  deleteManager,
   forgotPassword,
   resetPassword,
 } from "./auth.controller.js";
@@ -85,16 +83,5 @@ authRouter.use(Protect);
 
 authRouter.post("/logout", logoutUser);
 authRouter.get("/me", getMe);
-
-// Admin creates and deletes manager accounts
-authRouter.post(
-  "/admin/manager",
-  authorizeRoles("admin"),
-  registerValidation,
-  validate,
-  createManager,
-);
-
-authRouter.delete("/admin/manager/:id", authorizeRoles("admin"), deleteManager);
 
 export default authRouter;

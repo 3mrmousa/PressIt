@@ -18,7 +18,12 @@ export const getMeService = async (userId: string) => {
     throw new AppError("User not found", 404);
   }
 
-  const tier = user.plan || "free";
+  let tier = "free";
+  if (user.role === "admin" || user.role === "manager") {
+    tier = user.role;
+  } else {
+    tier = user.plan || "free";
+  }
   const limit = LIMITS[tier] ?? LIMITS.guest;
   const today = new Date().toISOString().split("T")[0];
   const key = `compress:${tier}:${userId}:${today}`;
@@ -27,43 +32,4 @@ export const getMeService = async (userId: string) => {
   const count = countStr ? parseInt(countStr, 10) : 0;
 
   return { ...user, usage: { count, limit } };
-};
-
-export const createManagerService = async (
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string,
-) => {
-  const user = await User.findOne({ email });
-  if (user) {
-    throw new AppError("User already exists", 400);
-  }
-
-  const newUser = await User.create({
-    email,
-    password,
-    firstName,
-    lastName,
-    role: "manager",
-    emailVerified: true,
-  });
-
-  return newUser;
-};
-
-export const deleteManagerService = async (userId: string) => {
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw new AppError("User not found", 404);
-  }
-
-  if (user.role !== "manager") {
-    throw new AppError("This user is not a manager", 400);
-  }
-
-  await user.deleteOne();
-
-  return user;
 };

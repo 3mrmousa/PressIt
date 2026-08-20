@@ -9,8 +9,6 @@ import {
   verifyOTPValidation,
 } from "./user.validation.js";
 import {
-  getAllUsers,
-  getUserById,
   updateUserProfile,
   updatePassword,
   updateEmail,
@@ -26,9 +24,6 @@ import { uploadSingleImageForProfile } from "../../middlewares/upload.middleware
 const userRouter = express.Router();
 
 userRouter.use(Protect);
-
-userRouter.get("/all-users", authorizeRoles("admin", "manager"), getAllUsers);
-userRouter.get("/user/:id", authorizeRoles("admin", "manager"), getUserById);
 
 userRouter.patch(
   "/update-profile",

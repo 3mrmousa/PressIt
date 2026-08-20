@@ -1,0 +1,10 @@
+<svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <mask id="cutout">
+      <rect x="0" y="2" width="32" height="32" rx="10" fill="white" />
+      <path d="M13 10C11.8954 10 11 10.8954 11 12V24C11 24.5523 11.4477 25 12 25C12.5523 25 13 24.5523 13 24V19H17.5C20.5376 19 23 16.5376 23 13.5C23 10.4624 20.5376 8 17.5 8H13ZM17.5 17H13V10H17.5C19.433 10 21 11.567 21 13.5C21 15.433 19.433 17 17.5 17Z" fill="black" />
+    </mask>
+  </defs>
+  <rect x="0" y="2" width="32" height="32" rx="10" fill="#9333ea" mask="url(#cutout)" />
+  <text x="44" y="26" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="#9333ea" letter-spacing="-0.04em">PressIt</text>
+</svg>

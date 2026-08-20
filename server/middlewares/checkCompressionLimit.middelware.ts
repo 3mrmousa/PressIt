@@ -11,7 +11,14 @@ export const checkCompressionLimit = asyncHandler(
     const ip = req.ip;
 
     const id = user?._id?.toString() || ip;
-    const tier = user?.plan || (user ? "free" : "guest");
+    let tier = "guest";
+    if (user) {
+      if (user.role === "admin" || user.role === "manager") {
+        tier = user.role;
+      } else {
+        tier = user.plan || "free";
+      }
+    }
 
     const today = new Date().toISOString().split("T")[0];
 

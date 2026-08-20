@@ -40,7 +40,7 @@ function SingleGlow({ zIndex, delay }: { zIndex: number; delay: number }) {
 
   return (
     <div
-      className="absolute w-[100vw] md:w-[60vw] h-[40vh] rounded-full bg-[radial-gradient(circle,rgba(213,13,183,0.8)_0%,rgba(0,0,0,0)_50%)] blur-3xl transition-opacity duration-[2000ms] ease-in-out pointer-events-none"
+      className="absolute w-screen md:w-[60vw] h-[40vh] rounded-full bg-[radial-gradient(circle,rgba(213,13,183,0.8)_0%,rgba(0,0,0,0)_50%)] blur-3xl transition-opacity duration-[2000ms] ease-in-out pointer-events-none"
       style={{
         zIndex,
         top: style.top,

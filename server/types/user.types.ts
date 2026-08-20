@@ -10,7 +10,10 @@ export interface IUser extends Document {
   emailVerified: boolean;
   role: "user" | "manager" | "admin";
   plan: "free" | "plus" | "pro";
-  profilePicture: string | null;
+  profilePicture?: {
+    secure_url: string;
+    public_id: string;
+  };
   history: boolean;
 
   createdAt: Date;

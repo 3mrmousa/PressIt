@@ -42,8 +42,8 @@ const userSchema = new mongoose.Schema<IUser>(
       default: "free",
     },
     profilePicture: {
-      type: String,
-      default: null,
+      secure_url: String,
+      public_id: String,
     },
     history: {
       type: Boolean,

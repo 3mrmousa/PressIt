@@ -1,30 +1,5 @@
 import AppError from "../../utils/errors/AppError.js";
-import { getPagination } from "../../utils/pagination.js";
 import User from "./user.model.js";
-
-export const getAllUsersService = async (page = 1, limit = 20) => {
-  const { skip } = getPagination(page, limit);
-
-  const [users, total] = await Promise.all([
-    User.find().select("-__v -password").skip(skip).limit(limit).lean(),
-    User.countDocuments(),
-  ]);
-
-  return {
-    users,
-    total,
-    page,
-    pages: Math.ceil(total / limit),
-  };
-};
-
-export const getUserByIdService = async (userId: string) => {
-  const user = await User.findById(userId).select("-__v -password");
-  if (!user) {
-    throw new AppError("User not found", 404);
-  }
-  return user;
-};
 
 export const updateUserProfileService = async (
   userId: string,

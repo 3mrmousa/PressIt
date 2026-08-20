@@ -5,8 +5,6 @@ import AppError from "../../utils/errors/AppError.js";
 import {
   loginUserService,
   getMeService,
-  createManagerService,
-  deleteManagerService,
 } from "./auth.service.js";
 import generateToken from "../../utils/generateToken.js";
 import User from "../user/user.model.js";
@@ -33,9 +31,14 @@ export const registerUser = asyncHandler(
 
     const { otp, hashedOtp } = generateEmailVerificationOTP();
 
-    const existingSession = await getOtpSession<OtpVerificationEmailType>(
-      `verify-email:${req.ip?.toString()}`,
+    let existingSession = await getOtpSession<OtpVerificationEmailType>(
+      `verify-email:${req.ip}`,
     );
+
+    if (existingSession && existingSession.userData.email !== email) {
+      await delOtpSession(`verify-email:${req.ip}`);
+      existingSession = null;
+    }
 
     if (existingSession) {
       throw new AppError(
@@ -58,7 +61,9 @@ export const registerUser = asyncHandler(
       600,
     );
 
-    await sendRegisterOTPEmail(email, otp);
+    sendRegisterOTPEmail(email, otp).catch((err) => {
+      console.error("Failed to send registration OTP email:", err);
+    });
 
     res.status(200).json({
       success: "success",
@@ -115,38 +120,6 @@ export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
   });
 });
 
-export const createManager = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { email, password, firstName, lastName } = req.body;
-
-    if (!email || !password || !firstName || !lastName) {
-      throw new AppError("All fields are required", 400);
-    }
-
-    const user = await createManagerService(
-      email,
-      password,
-      firstName,
-      lastName,
-    );
-
-    res.status(201).json({
-      success: "success",
-      message: `Manager created successfully ${user.firstName} ${user.lastName}`,
-    });
-  },
-);
-
-export const deleteManager = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const deletedUser = await deleteManagerService(id.toString());
-    res.status(200).json({
-      success: "success",
-      message: `Deleted manager ${deletedUser.firstName} ${deletedUser.lastName}`,
-    });
-  },
-);
 
 export const forgotPassword = asyncHandler(
   async (req: Request, res: Response) => {

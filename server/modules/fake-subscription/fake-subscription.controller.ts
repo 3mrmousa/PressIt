@@ -135,28 +135,3 @@ export const fakeCancel = asyncHandler(
   },
 );
 
-// ─── GET /admin/revenue ──────────────────────────────────
-export const getAdminRevenueStats = asyncHandler(
-  async (req: AuthRequest, res: Response) => {
-    const aggregationResult = await FakeSubscription.aggregate([
-      { $match: { status: "active" } },
-      { $group: { _id: null, totalEarnings: { $sum: "$amount" } } },
-    ]);
-    const totalEarnings = aggregationResult[0]?.totalEarnings || 0;
-
-    const subscriptions = await FakeSubscription.find()
-      .populate("user", "firstName lastName email")
-      .sort("-createdAt");
-
-    res.json({
-      success: true,
-      data: {
-        totalEarnings,
-        totalActive: await FakeSubscription.countDocuments({
-          status: "active",
-        }),
-        subscriptions,
-      },
-    });
-  },
-);

@@ -1,8 +1,6 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import asyncHandler from "../../utils/errors/asyncHandler.js";
 import {
-  getAllUsersService,
-  getUserByIdService,
   updatePasswordService,
   deleteUserService,
   updateUserProfileService,
@@ -15,33 +13,7 @@ import { sendCurrentEmailChangeOTP } from "../../utils/email.service.js";
 import { uploadProfilePictureToCloudinary } from "../../utils/uploadToCloudinary.js";
 import { getOtpSession, setOtpSession } from "../../utils/otp.redis.js";
 import { ChangeEmailOtpSession } from "./service/otp.store.changeEmail.js";
-
-export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 20;
-
-  const users = await getAllUsersService(page, limit);
-
-  res.status(200).json({
-    success: "success",
-    data: users,
-  });
-});
-
-export const getUserById = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.params.id;
-
-  if (!userId) {
-    throw new AppError("User ID not found", 400);
-  }
-
-  const user = await getUserByIdService(userId.toString());
-
-  res.status(200).json({
-    success: "success",
-    data: user,
-  });
-});
+import { deleteFromCloudinary } from "../../utils/deleteFromCloudinary.js";
 
 export const updateUserProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -185,13 +157,17 @@ export const uploadProfilePicture = asyncHandler(
     if (!req.user) throw new AppError("Not authorized", 401);
     if (!req.file) throw new AppError("No file uploaded", 400);
 
-    const imageUrl = await uploadProfilePictureToCloudinary(req.file.buffer);
+    const { secure_url, public_id } = await uploadProfilePictureToCloudinary(req.file.buffer);
 
     const user = await User.findById(req.user._id);
 
     if (!user) throw new AppError("User not found", 404);
+    
+    if (user.profilePicture?.public_id) {
+      await deleteFromCloudinary(user.profilePicture.public_id);
+    }
 
-    user.profilePicture = imageUrl;
+    user.profilePicture = { secure_url, public_id };
     await user.save();
 
     res.json({

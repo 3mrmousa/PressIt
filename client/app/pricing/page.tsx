@@ -1,7 +1,6 @@
 "use client";
 
 import { useMe } from "@/hooks/useMe";
-import { useSubscription } from "@/hooks/useSubscription";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
@@ -34,7 +33,7 @@ const PLANS = [
   {
     id: "plus",
     name: "Plus",
-    price: "$9",
+    price: "$10",
     period: "/month",
     icon: faCrown,
     color: "purple",
@@ -51,7 +50,7 @@ const PLANS = [
   {
     id: "pro",
     name: "Pro",
-    price: "$19",
+    price: "$20",
     period: "/month",
     icon: faRocket,
     color: "amber",

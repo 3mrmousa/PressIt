@@ -11,6 +11,8 @@ import authRouter from "./modules/auth/auth.routes.js";
 import userRouter from "./modules/user/user.routes.js";
 import compressRouter from "./modules/compress/compress.routes.js";
 import fakeSubscriptionRouter from "./modules/fake-subscription/fake-subscription.routes.js";
+import adminRouter from "./modules/admin/admin.routes.js";
+import SystemLog from "./modules/admin/log.model.js";
 import { csrfMiddleware } from "./middlewares/csrf.middleware.js";
 
 // import { startCleanupJob } from "./jops/cleanup.job.js";
@@ -44,6 +46,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/compress", compressRouter);
 app.use("/api/fake-subscription", fakeSubscriptionRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));
@@ -63,6 +66,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     message,
     errors,
   });
+
+  SystemLog.create({
+    level: "error",
+    message: err.message || "Internal server error",
+    meta: {
+      stack: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      body: req.body,
+    },
+  }).catch((dbErr) => console.error("Failed to log error to DB:", dbErr));
 });
 
 const PORT = process.env.PORT || 3000;

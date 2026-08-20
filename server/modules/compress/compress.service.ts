@@ -6,6 +6,7 @@ import { getSharpFormat } from "../../utils/getSharpFormat.js";
 import { uploadCompressedImageToCloudinary } from "../../utils/uploadToCloudinary.js";
 import Compress from "./compress.model.js";
 import { randomUUID } from "crypto";
+import { deleteFromCloudinary } from "../../utils/deleteFromCloudinary.js";
 
 export const compressImageService = async (
   file: Express.Multer.File,
@@ -111,11 +112,7 @@ export const deleteImageService = async (userId: string, id: string) => {
   }
 
   if (image.images.compressedImage?.publicId) {
-    try {
-      await cloudinary.uploader.destroy(image.images.compressedImage.publicId);
-    } catch (error) {
-      console.error("Cloudinary delete failed:", error);
-    }
+    await deleteFromCloudinary(image.images.compressedImage.publicId);
   }
 
   await image.deleteOne();

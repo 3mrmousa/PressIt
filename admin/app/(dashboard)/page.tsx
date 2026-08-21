@@ -2,9 +2,15 @@ import { getAdminStats } from "../../features/admin/serverIndex";
 import DataCard from "../../components/ui/DataCard";
 import SubscriptionTable from "../../components/ui/SubscriptionTable";
 
-export default async function Dashboard() {
-  const { data: stats } = await getAdminStats();
-  console.log("stats", stats);
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+  const { data: stats, pagination } = await getAdminStats(page, limit);
 
   const cardsData = [
     {
@@ -53,12 +59,12 @@ export default async function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col flex-1 bg-zinc-50 font-sans p-8">
+    <div className="min-h-screen flex flex-col flex-1 font-sans p-8">
       <main className="flex flex-1 w-full flex-col max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1
             className="text-3xl font-bold text-gray-900
-           text-shadow-lg text-shadow-purple-300"
+           text-shadow-lg"
           >
             Dashboard Overview
           </h1>
@@ -74,7 +80,11 @@ export default async function Dashboard() {
           ))}
         </div>
         <div>
-          <SubscriptionTable subscriptions={stats?.subscriptions || []} />
+          <SubscriptionTable
+            subscriptions={stats?.subscriptions || []}
+            currentPage={pagination?.page || 1}
+            totalPages={pagination?.totalPages || 1}
+          />
         </div>
       </main>
     </div>

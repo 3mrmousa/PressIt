@@ -1,11 +1,15 @@
 import { client } from "../../lib/client";
-import { AdminSettings, AdminStats, BaseResponse, SystemLog, User, UsersResponse } from "./types";
+import { AdminSettings, AdminStats, BaseResponse, SystemLog, User, UsersResponse, ManagersResponse } from "./types";
 
 export async function createManager(data: { email: string; password: string; firstName: string; lastName: string }) {
   return client<BaseResponse>("/admin/manager", {
     method: "POST",
     body: JSON.stringify(data),
   });
+}
+
+export async function getAllManagers(page: number = 1, limit: number = 20) {
+  return client<BaseResponse<ManagersResponse>>(`/admin/managers?page=${page}&limit=${limit}`);
 }
 
 export async function deleteManager(id: string) {
@@ -23,7 +27,6 @@ export async function getAdminSettings() {
 }
 
 export async function updateAdminSettings(data: FormData) {
-  
   return client<BaseResponse<AdminSettings>>("/admin/settings", {
     method: "PATCH",
     body: data,
@@ -35,9 +38,15 @@ export async function getSystemLogs(page: number = 1, limit: number = 20) {
 }
 
 export async function getAllUsers(page: number = 1, limit: number = 20) {
-  return client<BaseResponse<UsersResponse>>(`/admin/all-users?page=${page}&limit=${limit}`);
+  return client<BaseResponse<UsersResponse>>(`/admin/users?page=${page}&limit=${limit}`);
 }
 
 export async function getUserById(id: string) {
-  return client<BaseResponse<User>>(`/admin/user/${id}`);
+  return client<BaseResponse<User>>(`/admin/users/${id}`);
+}
+
+export async function deleteUser(id: string) {
+  return client<BaseResponse>(`/admin/users/${id}`, {
+    method: "DELETE",
+  });
 }

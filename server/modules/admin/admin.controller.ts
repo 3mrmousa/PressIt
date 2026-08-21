@@ -10,9 +10,13 @@ import {
   getSystemLogsService,
   getAllUsersService,
   getUserByIdService,
+  deleteUserService,
+  getAllManagersService,
 } from "./admin.service.js";
 import FakeSubscription from "../fake-subscription/fake-subscription.model.js";
 import User from "../user/user.model.js";
+
+// Managers
 
 export const createManager = asyncHandler(
   async (req: Request, res: Response) => {
@@ -47,68 +51,96 @@ export const deleteManager = asyncHandler(
   },
 );
 
+export const getAllManagers = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== "admin" && req.user?.role !== "manager") {
+      throw new AppError("You are not allowed to perform this action", 403);
+    }
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 20;
+
+  const data = await getAllManagersService(page, limit);
+
+  res.status(200).json({
+    success: "success",
+    data: data,
+    pagination: {
+      Pages: Math.ceil(data.total / limit),
+      page,
+      limit,
+    },
+  });
+});
+
+// Stats
+
 export const getAdminStats = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     if (req.user?.role !== "admin" && req.user?.role !== "manager") {
       throw new AppError("You are not allowed to perform this action", 403);
     }
 
-    const { page = 1 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
     const pageNumber = Number(page);
-    const limitNumber = 10;
+    const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
 
-    const aggregationResult = await FakeSubscription.aggregate([
-      { $match: { status: "active" } },
-      { $group: { _id: null, totalEarnings: { $sum: "$amount" } } },
+    const [
+      aggregationResult,
+      subscriptions,
+      totalActiveSubscriptions,
+      totalCanceledSubscriptions,
+      totalManagers,
+      totalUsers,
+      totalFreeUsers,
+      totalPlusUsers,
+      totalProUsers,
+      totalSubscriptionsCount
+    ] = await Promise.all([
+      FakeSubscription.aggregate([
+        { $match: { status: "active" } },
+        { $group: { _id: null, totalEarnings: { $sum: "$amount" } } },
+      ]),
+      FakeSubscription.find()
+        .populate("user", "_id firstName lastName email")
+        .sort("-createdAt")
+        .skip(skip)
+        .limit(limitNumber)
+        .lean(),
+      FakeSubscription.countDocuments({ status: "active" }).lean(),
+      FakeSubscription.countDocuments({ status: "canceled" }).lean(),
+      User.countDocuments({ role: "manager" }).lean(),
+      User.countDocuments({ role: "user" }).lean(),
+      User.countDocuments({ role: "user", plan: "free" }).lean(),
+      User.countDocuments({ role: "user", plan: "plus" }).lean(),
+      User.countDocuments({ role: "user", plan: "pro" }).lean(),
+      FakeSubscription.countDocuments({ status: "active" })
     ]);
-    const totalEarnings = aggregationResult[0]?.totalEarnings || 0;
 
-    const subscriptions = await FakeSubscription.find()
-      .populate("user", "_id firstName lastName email")
-      .sort("-createdAt")
-      .skip(skip)
-      .limit(limitNumber)
-      .lean();
+    const totalEarnings = aggregationResult[0]?.totalEarnings || 0;
 
     res.json({
       success: true,
       data: {
         totalEarnings,
-        totalActiveSubscriptions: await FakeSubscription.countDocuments({
-          status: "active",
-        }).lean(),
-        totalCanceledSubscriptions: await FakeSubscription.countDocuments({
-          status: "canceled",
-        }).lean(),
-        totalManagers: await User.countDocuments({ role: "manager" }).lean(),
-        totalUsers: await User.countDocuments({ role: "user" }).lean(),
-        totalFreeUsers: await User.countDocuments({
-          role: "user",
-          plan: "free",
-        }).lean(),
-        totalPlusUsers: await User.countDocuments({
-          role: "user",
-          plan: "plus",
-        }).lean(),
-        totalProUsers: await User.countDocuments({
-          role: "user",
-          plan: "pro",
-        }).lean(),
+        totalActiveSubscriptions,
+        totalCanceledSubscriptions,
+        totalManagers,
+        totalUsers,
+        totalFreeUsers,
+        totalPlusUsers,
+        totalProUsers,
         subscriptions,
       },
       pagination: {
         page: pageNumber,
         limit: limitNumber,
-        totalPages: Math.ceil(
-          (await FakeSubscription.countDocuments({
-            status: "active",
-          })) / limitNumber,
-        ),
+        totalPages: Math.ceil(totalSubscriptionsCount / limitNumber),
       },
     });
   },
 );
+
+// Settings
 
 export const getAdminSettings = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -175,19 +207,32 @@ export const getSystemLogs = asyncHandler(
   },
 );
 
-export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
+// Users
+
+export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== "admin" && req.user?.role !== "manager") {
+      throw new AppError("You are not allowed to perform this action", 403);
+    }
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 20;
 
-  const users = await getAllUsersService(page, limit);
+  const data = await getAllUsersService(page, limit);
 
   res.status(200).json({
     success: "success",
-    data: users,
+    data: data,
+    pagination: {
+      Pages: Math.ceil(data.total / limit),
+      page,
+      limit,
+    },
   });
 });
 
-export const getUserById = asyncHandler(async (req: Request, res: Response) => {
+export const getUserById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (req.user?.role !== "admin" && req.user?.role !== "manager") {
+    throw new AppError("You are not allowed to perform this action", 403);
+  }
   const userId = req.params.id;
 
   if (!userId) {
@@ -199,5 +244,20 @@ export const getUserById = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({
     success: "success",
     data: user,
+  });
+});
+
+export const deleteUser = asyncHandler(async(req:AuthRequest,res:Response)=>{
+  if (req.user?.role !== "admin" && req.user?.role !== "manager") {
+    throw new AppError("You are not allowed to perform this action", 403);
+  }
+  const userId = req.params.id;
+  if (!userId) {
+    throw new AppError("User ID not found", 400);
+  }
+  const data = await deleteUserService(userId.toString());
+  res.status(200).json({
+    success: "success",
+    message: `Deleted user ${data.firstName} ${data.lastName}`,
   });
 });

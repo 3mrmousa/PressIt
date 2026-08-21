@@ -23,14 +23,19 @@ export interface User {
     secure_url: string;
     public_id: string;
   };
-  subscriptionStatus?: string;
+  plan?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UsersResponse {
   users: User[];
   total: number;
-  page: number;
-  pages: number;
+}
+
+export interface ManagersResponse {
+  managers: User[];
+  total: number;
 }
 
 export interface AdminStats {
@@ -55,9 +60,8 @@ export interface SystemLog {
 
 export interface Pagination {
   page: number;
-  limit: number;
   totalPages: number;
-  totalLogs?: number;
+  limit: number;
 }
 
 export interface BaseResponse<T = any> {

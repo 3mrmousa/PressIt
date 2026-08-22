@@ -13,7 +13,7 @@ export function LayoutClient({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
 
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className="mt-10 md:mt-0 flex-1 flex flex-col">{children}</main>
 
       {!hideLayout && <Footer />}
     </>

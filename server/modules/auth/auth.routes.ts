@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authorizeRoles, Protect } from "../../middlewares/auth.middleware.js";
+import { Protect } from "../../middlewares/auth.middleware.js";
 import {
   registerValidation,
   loginValidation,

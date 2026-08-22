@@ -27,14 +27,28 @@ export default function Home() {
 
         <MyLink href="#dropzone">Start compressing</MyLink>
       </div>
-      <div className="flex w-full items-center justify-center px-4">
-
-      </div>
-      <div id="dropzone" className="flex flex-col items-center justify-center gap-16 mt-10">
+      <div className="flex w-full items-center justify-center px-4"></div>
+      <div
+        id="dropzone"
+        className="flex flex-col items-center justify-center gap-16 mt-10"
+      >
         <DropZone />
 
-        <div className="bg-purple-50/80 border border-purple-200 text-purple-800 px-6 py-4 rounded-xl max-w-2xl text-center text-sm shadow-xs mx-4">
-          <strong className="font-semibold text-purple-900">Privacy Notice:</strong> By default, your compressed images are securely saved to your account history. If you prefer zero-storage, you can disable this anytime in your <Link href="/profile" className="underline font-semibold hover:text-purple-950">Profile Settings</Link>. When disabled, your images will not be saved anywhere.
+        <div className="bg-purple-50/80 border border-purple-200 text-purple-800 
+        px-6 py-4 rounded-xl max-w-2xl text-center text-sm shadow-xs mx-4">
+          <strong className="font-semibold text-purple-900">
+            Privacy Notice:
+          </strong>{" "}
+          By default, your compressed images are securely saved to your account
+          history. If you prefer zero-storage, you can disable this anytime in
+          your{" "}
+          <Link
+            href="/profile"
+            className="underline font-semibold hover:text-purple-950"
+          >
+            Profile Settings
+          </Link>
+          . When disabled, your images will not be saved anywhere.
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl px-6">
@@ -54,8 +68,6 @@ export default function Home() {
             icon={faSliders}
           />
         </div>
-
-
       </div>
     </div>
   );

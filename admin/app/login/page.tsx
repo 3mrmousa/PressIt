@@ -1,13 +1,15 @@
 "use client";
 import { MyButton } from "../../components/ui/MyButton";
 import RadialGlow from "../../components/ui/RadialGlow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useMe } from "../../hooks/userMe";
 import { redirect, useRouter } from "next/navigation";
 import { login, logout } from "../../features/auth";
 import toast from "react-hot-toast";
+import Image from "next/image";
+import { getAdminSettings } from "../../features/admin";
 
 export default function LoginPage() {
   const { data: user } = useMe();
@@ -16,6 +18,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [logo, setLogo] = useState<string>("/logo.svg");
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const res = await getAdminSettings();
+        if (res?.data?.logo?.secure_url) {
+          setLogo(res.data.logo.secure_url);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin settings:", error);
+      }
+    };
+    fetchLogo();
+  }, []);
 
   if (
     user?.data &&
@@ -50,12 +68,13 @@ export default function LoginPage() {
     items-center justify-center gap-8 bg-white"
     >
       <RadialGlow zIndex={0} />
-      <h1 className="relative z-10 text-4xl font-bold text-purple-600">
-        Pressit Admin
+      <h1 className="relative z-10 font-bold text-purple-600">
+        <Image src={logo} alt="Logo" width={250} height={250} className="object-contain" priority />
+        <span className="absolute top-0 -right-1 text-xs">Admin</span>
       </h1>
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 bg-white min-w-sm flex flex-col gap-6 
+        className="relative z-10 bg-white w-full max-w-xs md:max-w-lg flex flex-col gap-6 
       shadow-lg shadow-purple-400 p-6 rounded-xl border border-purple-100"
       >
         <div className="flex flex-col">

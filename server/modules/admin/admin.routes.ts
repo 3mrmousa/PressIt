@@ -11,49 +11,61 @@ import {
   getAllUsers,
   getUserById,
   deleteUser,
+  deleteAllSystemLogs,
 } from "./admin.controller.js";
 import { registerValidation } from "../auth/auth.validation.js";
 import validate from "../../middlewares/validate.middleware.js";
 
+import { uploadAdminSettingsImages } from "../../middlewares/upload.middleware.js";
+
 const adminRouter = Router();
+
+adminRouter.get("/settings", getAdminSettings);
 
 adminRouter.use(Protect);
 
-// ─── POST /admin/managers ──────────────────────────────────
+
 adminRouter.post(
-  "/manager",
+  "/managers",
   authorizeRoles("admin"),
   registerValidation,
   validate,
   createManager,
 );
 
-adminRouter.get("/managers", authorizeRoles("admin", "manager"), getAllManagers);
+adminRouter.get(
+  "/managers",
+  authorizeRoles("admin", "manager"),
+  getAllManagers,
+);
 
-adminRouter.delete("/manager/:id", authorizeRoles("admin"), deleteManager);
+adminRouter.delete("/managers/:id", authorizeRoles("admin"), deleteManager);
 
-// ─── GET /admin/stats ──────────────────────────────────
+
 adminRouter.get("/stats", authorizeRoles("admin", "manager"), getAdminStats);
 
-// ─── GET /admin/settings ──────────────────────────────────
-adminRouter.get(
+
+adminRouter.patch(
   "/settings",
-  authorizeRoles("admin", "manager"),
-  getAdminSettings,
-).patch(
-  "/settings",
-  authorizeRoles("admin", "manager"),
+  authorizeRoles("admin"),
+  uploadAdminSettingsImages,
   updateAdminSettings,
 );
 
-// ─── GET /admin/system/logs ──────────────────────────────────
-adminRouter.get("/system/logs", authorizeRoles("admin", "manager"), getSystemLogs);
 
-// ─── GET /admin/users ──────────────────────────────────
+adminRouter
+  .get("/system/logs", authorizeRoles("admin", "manager"), getSystemLogs)
+  .delete("/system/logs", authorizeRoles("admin"), deleteAllSystemLogs);
+
+
 adminRouter.get("/users", authorizeRoles("admin", "manager"), getAllUsers);
 
 adminRouter.get("/users/:id", authorizeRoles("admin", "manager"), getUserById);
 
-adminRouter.delete("/users/:id", authorizeRoles("admin", "manager"), deleteUser);
+adminRouter.delete(
+  "/users/:id",
+  authorizeRoles("admin"),
+  deleteUser,
+);
 
 export default adminRouter;

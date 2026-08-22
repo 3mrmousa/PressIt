@@ -23,12 +23,13 @@ export const startCleanupJob = () => {
       );
 
       for (const image of expiredImages) {
-        if (image.cloudinaryPublicId) {
+        const publicId = image.images?.compressedImage?.publicId;
+        if (publicId) {
           try {
-            await cloudinary.uploader.destroy(image.cloudinaryPublicId);
+            await cloudinary.uploader.destroy(publicId);
           } catch (err) {
             console.error(
-              `Falied to delete Clodinary image: ${image.cloudinaryPublicId} - ${image.id}`,
+              `Failed to delete Cloudinary image: ${publicId} - ${image.id}`,
             );
           }
         }

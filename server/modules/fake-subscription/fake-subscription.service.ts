@@ -1,14 +1,20 @@
 import AppError from "../../utils/errors/AppError.js";
 import User from "../user/user.model.js";
 import FakeSubscription from "./fake-subscription.model.js";
-
-const PLAN_MAP: Record<string, { plan: "plus" | "pro"; amount: number }> = {
-  price_plus: { plan: "plus", amount: 10 },
-  price_pro: { plan: "pro", amount: 20 },
-};
+import AdminSettings from "../admin/admin.model.js";
 
 export const handleCreated = async (data: any) => {
   const { userId, priceId, subscriptionId } = data;
+
+  const settings = await AdminSettings.findOne();
+  const plusPrice = settings?.subscriptionPrices?.plus ?? 9.99;
+  const proPrice = settings?.subscriptionPrices?.pro ?? 19.99;
+
+  const PLAN_MAP: Record<string, { plan: "plus" | "pro"; amount: number }> = {
+    price_plus: { plan: "plus", amount: plusPrice },
+    price_pro: { plan: "pro", amount: proPrice },
+  };
+
   const planData = PLAN_MAP[priceId];
   if (!planData) {
     throw new AppError(`Unsupported price: ${priceId}`, 400);

@@ -2,7 +2,7 @@ import { client } from "../../lib/client";
 import { AdminSettings, AdminStats, BaseResponse, SystemLog, User, UsersResponse, ManagersResponse } from "./types";
 
 export async function createManager(data: { email: string; password: string; firstName: string; lastName: string }) {
-  return client<BaseResponse>("/admin/manager", {
+  return client<BaseResponse>("/admin/managers", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -13,7 +13,7 @@ export async function getAllManagers(page: number = 1, limit: number = 20) {
 }
 
 export async function deleteManager(id: string) {
-  return client<BaseResponse>(`/admin/manager/${id}`, {
+  return client<BaseResponse>(`/admin/managers/${id}`, {
     method: "DELETE",
   });
 }
@@ -35,6 +35,12 @@ export async function updateAdminSettings(data: FormData) {
 
 export async function getSystemLogs(page: number = 1, limit: number = 20) {
   return client<BaseResponse<SystemLog[]>>(`/admin/system/logs?page=${page}&limit=${limit}`);
+}
+
+export async function deleteAllSystemLogs() {
+  return client<BaseResponse>("/admin/system/logs", {
+    method: "DELETE",
+  });
 }
 
 export async function getAllUsers(page: number = 1, limit: number = 20) {

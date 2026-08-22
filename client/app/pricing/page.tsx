@@ -9,10 +9,14 @@ import {
   faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { useState } from "react";
-import { cancelSubscription, createCheckout } from "@/features/fake-subscription";
+import { useEffect, useState } from "react";
+import {
+  cancelSubscription,
+  createCheckout,
+} from "@/features/fake-subscription";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { getAdminSettings } from "@/features/settings";
 
 const PLANS = [
   {
@@ -84,7 +88,9 @@ export default function PricingPage() {
       toast.success("Checkout processed successfully");
       queryClient.invalidateQueries({ queryKey: ["me"] });
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong. Please try again later.");
+      toast.error(
+        err.message || "Something went wrong. Please try again later.",
+      );
     } finally {
       setCheckoutLoading(false);
     }
@@ -99,11 +105,24 @@ export default function PricingPage() {
       toast.success("Checkout processed successfully");
       queryClient.invalidateQueries({ queryKey: ["me"] });
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong. Please try again later.");
+      toast.error(
+        err.message || "Something went wrong. Please try again later.",
+      );
     } finally {
       setCheckoutLoading(false);
     }
   };
+
+  const [adminSettings, setAdminSettings] = useState<any>(null);
+
+  useEffect(() => {
+    const handleGetAdminSettings = async () => {
+      const response = await getAdminSettings();
+      const settings = response.data;
+      setAdminSettings(settings);
+    };
+    handleGetAdminSettings();
+  }, []);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-linear-to-b from-white to-purple-50 px-6 pt-24 pb-20 font-sans">
@@ -118,8 +137,6 @@ export default function PricingPage() {
           Choose the plan that fits your needs. Upgrade or downgrade anytime.
         </p>
       </div>
-
-
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
         {PLANS.map((plan) => {
@@ -159,7 +176,15 @@ export default function PricingPage() {
 
               <div className="mb-6">
                 <span className="text-4xl font-bold text-gray-900">
-                  {plan.price}
+                  {plan.id === "plus"
+                    ? (adminSettings?.subscriptionPrices?.plus
+                        ? adminSettings?.subscriptionPrices?.plus
+                        : plan.price)
+                    : plan.id === "pro"
+                      ? (adminSettings?.subscriptionPrices?.pro
+                          ? adminSettings?.subscriptionPrices?.pro
+                          : plan.price)
+                      : plan.price}
                 </span>
                 <span className="text-gray-500">{plan.period}</span>
               </div>
@@ -218,7 +243,14 @@ export default function PricingPage() {
       </div>
       {isLoggedIn && (
         <p className="mt-10 text-sm text-gray-400 text-center">
-          You can cancel from <button onClick={handleCancel} disabled={checkoutLoading} className="font-semibold text-md text-purple-600 cursor-pointer">here</button>
+          You can cancel from{" "}
+          <button
+            onClick={handleCancel}
+            disabled={checkoutLoading}
+            className="font-semibold text-md text-purple-600 cursor-pointer"
+          >
+            here
+          </button>
         </p>
       )}
     </div>

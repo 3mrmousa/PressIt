@@ -4,7 +4,7 @@ export interface User {
   emailVerified: boolean;
   firstName: string;
   lastName: string;
-  profilePicture: string | null;
+  profilePicture: { secure_url: string, public_id: string } | null;
   plan: "free" | "plus" | "pro";
   role: "admin" | "manager" | "user";
   history: boolean;

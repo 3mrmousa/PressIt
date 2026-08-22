@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Cog, LayoutDashboard, Users } from "lucide-react";
+import { Cog, FileText, LayoutDashboard, Users } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function SideBarLinks() {
@@ -28,6 +28,10 @@ export default function SideBarLinks() {
       <Link href="/managers" className={getLinkClass("/managers")}>
         <Cog className="w-4.5 h-4.5" />
         Managers
+      </Link>
+      <Link href="/logs" className={getLinkClass("/logs")}>
+        <FileText className="w-4.5 h-4.5" />
+        Logs
       </Link>
     </nav>
   );

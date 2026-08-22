@@ -6,6 +6,10 @@ export interface IAdminSettings extends Document {
     secure_url: string;
     public_id: string;
   };
+  favicon: {
+    secure_url: string;
+    public_id: string;
+  };
   subscriptionPrices: {
     plus: number;
     pro: number;
@@ -16,6 +20,10 @@ const adminSettingsSchema = new Schema<IAdminSettings>(
   {
     siteName: { type: String, default: "Sprintlyze" },
     logo: {
+      secure_url: { type: String, default: "" },
+      public_id: { type: String, default: "" },
+    },
+    favicon: {
       secure_url: { type: String, default: "" },
       public_id: { type: String, default: "" },
     },

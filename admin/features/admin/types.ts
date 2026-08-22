@@ -1,8 +1,13 @@
 import { Subscription } from "../../types/subscription";
 
 export interface AdminSettings {
+  _id: string;
   siteName?: string;
   logo?: {
+    secure_url: string;
+    public_id: string;
+  };
+  favicon?: {
     secure_url: string;
     public_id: string;
   };

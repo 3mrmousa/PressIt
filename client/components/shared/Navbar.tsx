@@ -4,6 +4,9 @@ import { logout } from "@/features/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getAdminSettings } from "@/features/settings";
+import Image from "next/image";
 
 const planColors: Record<string, string> = {
   free: "bg-gray-100 text-gray-600",
@@ -21,6 +24,8 @@ export const Navbar = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
+  const [adminSettings, setAdminSettings] = useState<any>(null);
+
   const logoutMutation = useMutation({
     mutationFn: logout,
 
@@ -33,15 +38,30 @@ export const Navbar = () => {
     },
   });
 
+  useEffect(() => {
+    const handleGetAdminSettings = async () => {
+      const response = await getAdminSettings();
+      const settings = response.data;
+      setAdminSettings(settings);
+    };
+    handleGetAdminSettings();
+  }, []);
+
   const initials = `${userInfo?.firstName?.[0] ?? ""}${userInfo?.lastName?.[0] ?? ""}`;
 
   return (
     <nav className="fixed top-0 z-50 w-full backdrop-blur-md bg-white/50 border-b border-purple-200">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-purple-600">
-          PressIt
+        <Link href="/">
+          <Image
+            src={adminSettings?.logo?.secure_url || "/logo.svg"}
+            alt={`${adminSettings?.siteName || "PressIt"} Logo`}
+            width={140}
+            height={36}
+            className="object-contain"
+            priority
+          />
         </Link>
-
         {isLoggedIn ? (
           <div className="flex items-center gap-3">
             <Link

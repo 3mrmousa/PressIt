@@ -1,4 +1,3 @@
-import cloudinary from "../../config/cloudinary.js";
 import AppError from "../../utils/errors/AppError.js";
 import { getPagination } from "../../utils/pagination.js";
 import compressToTargetSize from "../../utils/compressToTagregtSize.js";

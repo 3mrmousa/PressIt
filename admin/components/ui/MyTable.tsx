@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { User } from "../../features/admin/types";
 import Pagination from "./Pagination";
 
 export default function MyTable({

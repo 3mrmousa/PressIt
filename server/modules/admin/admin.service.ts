@@ -68,27 +68,55 @@ export const getAdminSettingsService = async () => {
 };
 
 export const updateAdminSettingsService = async (
-  siteName: string,
-  plus: number,
-  pro: number,
-  logo: Buffer,
+  siteName?: string,
+  plus?: number,
+  pro?: number,
+  logo?: Buffer,
+  favicon?: Buffer,
 ) => {
   let settings = await AdminSettings.findOne();
-  const { secure_url, public_id } = await uploadLogoToCloudinary(logo);
+  
+  let logo_secure_url, logo_public_id;
+  if (logo) {
+    const uploaded = await uploadLogoToCloudinary(logo);
+    logo_secure_url = uploaded.secure_url;
+    logo_public_id = uploaded.public_id;
+  }
+
+  let favicon_secure_url, favicon_public_id;
+  if (favicon) {
+    const uploaded = await uploadLogoToCloudinary(favicon);
+    favicon_secure_url = uploaded.secure_url;
+    favicon_public_id = uploaded.public_id;
+  }
+
   if (!settings) {
     settings = await AdminSettings.create({
-      siteName,
-      subscriptionPrices: { plus, pro },
-      logo: { secure_url, public_id },
+      ...(siteName && { siteName }),
+      subscriptionPrices: { 
+        ...(plus !== undefined && { plus }), 
+        ...(pro !== undefined && { pro }) 
+      },
+      ...(logo && { logo: { secure_url: logo_secure_url, public_id: logo_public_id } }),
+      ...(favicon && { favicon: { secure_url: favicon_secure_url, public_id: favicon_public_id } }),
     });
   } else {
     if (siteName !== undefined) settings.siteName = siteName;
-    if (logo !== undefined) {
+    
+    if (logo !== undefined && logo_secure_url && logo_public_id) {
       if (settings.logo?.public_id) {
         await deleteFromCloudinary(settings.logo?.public_id);
       }
-      settings.logo = { secure_url, public_id };
+      settings.logo = { secure_url: logo_secure_url, public_id: logo_public_id };
     }
+    
+    if (favicon !== undefined && favicon_secure_url && favicon_public_id) {
+      if (settings.favicon?.public_id) {
+        await deleteFromCloudinary(settings.favicon?.public_id);
+      }
+      settings.favicon = { secure_url: favicon_secure_url, public_id: favicon_public_id };
+    }
+    
     if (plus !== undefined) {
       settings.subscriptionPrices.plus = plus;
     }
@@ -110,6 +138,10 @@ export const getSystemLogsService = async (page: number, limit: number) => {
   const totalLogs = await SystemLog.countDocuments();
 
   return { logs, totalLogs };
+};
+
+export const deleteAllSystemLogsService = async () => {
+  await SystemLog.deleteMany({});
 };
 
 export const getAllUsersService = async (page = 1, limit = 20) => {

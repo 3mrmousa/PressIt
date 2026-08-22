@@ -20,7 +20,7 @@ export const googleAuth = asyncHandler(async (req, res) => {
       email: googleUser.email,
       firstName: googleUser.firstName || "Google",
       lastName: googleUser.lastName || "User",
-      password: randomPassword, // generate random password to satisfy schema
+      password: randomPassword, 
       emailVerified: true,
       role: "user",
     });

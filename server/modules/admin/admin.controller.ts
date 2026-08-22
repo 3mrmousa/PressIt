@@ -8,6 +8,7 @@ import {
   getAdminSettingsService,
   updateAdminSettingsService,
   getSystemLogsService,
+  deleteAllSystemLogsService,
   getAllUsersService,
   getUserByIdService,
   deleteUserService,
@@ -16,7 +17,7 @@ import {
 import FakeSubscription from "../fake-subscription/fake-subscription.model.js";
 import User from "../user/user.model.js";
 
-// Managers
+
 
 export const createManager = asyncHandler(
   async (req: Request, res: Response) => {
@@ -71,7 +72,7 @@ export const getAllManagers = asyncHandler(async (req: AuthRequest, res: Respons
   });
 });
 
-// Stats
+
 
 export const getAdminStats = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -140,13 +141,10 @@ export const getAdminStats = asyncHandler(
   },
 );
 
-// Settings
+
 
 export const getAdminSettings = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    if (req.user?.role !== "admin" && req.user?.role !== "manager") {
-      throw new AppError("You are not allowed to perform this action", 403);
-    }
     const settings = await getAdminSettingsService();
     res.json({
       success: true,
@@ -160,13 +158,17 @@ export const updateAdminSettings = asyncHandler(
     if (req.user?.role !== "admin" && req.user?.role !== "manager") {
       throw new AppError("You are not allowed to perform this action", 403);
     }
-    const {
-      siteName,
-      subscriptionPrices: { plus, pro },
-    } = req.body;
-    const logo = req.file?.buffer;
-    if (!siteName || !plus || !pro || !logo) {
-      throw new AppError("at least one of the fields are required", 400);
+    
+    const { siteName, plusPrice, proPrice } = req.body;
+    
+    const plus = plusPrice !== undefined ? Number(plusPrice) : undefined;
+    const pro = proPrice !== undefined ? Number(proPrice) : undefined;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+    const logo = files?.['logo']?.[0]?.buffer;
+    const favicon = files?.['favicon']?.[0]?.buffer;
+    
+    if (!siteName && plus === undefined && pro === undefined && !logo && !favicon) {
+      throw new AppError("At least one of the fields is required", 400);
     }
 
     const settings = await updateAdminSettingsService(
@@ -174,6 +176,7 @@ export const updateAdminSettings = asyncHandler(
       plus,
       pro,
       logo,
+      favicon
     );
     res.json({
       success: true,
@@ -207,7 +210,20 @@ export const getSystemLogs = asyncHandler(
   },
 );
 
-// Users
+export const deleteAllSystemLogs = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== "admin" && req.user?.role !== "manager") {
+      throw new AppError("You are not allowed to perform this action", 403);
+    }
+    await deleteAllSystemLogsService();
+    res.json({
+      success: true,
+      message: "Logs deleted successfully",
+    });
+  },
+);
+
+
 
 export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (req.user?.role !== "admin" && req.user?.role !== "manager") {

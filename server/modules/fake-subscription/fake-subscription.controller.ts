@@ -26,7 +26,7 @@ function verifySignature(body: string, signature: string): boolean {
   }
 }
 
-// ─── POST /checkout ──────────────────────────────────────
+
 
 export const fakeCheckout = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -49,15 +49,15 @@ export const fakeCheckout = asyncHandler(
       throw new AppError("You already have a plus subscription", 400);
     }
 
-    //Downgrade
+    
     if (req.user.plan === "pro" && priceId === "price_plus") {
       throw new AppError("You already have a pro subscription", 400);
     }
 
-    // //Upgrade
-    // if (req.user.plan === "plus" && priceId === "price_pro") {
-    //   throw new AppError("You already have a plus subscription", 400);
-    // }
+    
+    
+    
+    
 
     const fakeSubscriptionId = `sub-${crypto.randomUUID()}`;
 
@@ -78,7 +78,7 @@ export const fakeCheckout = asyncHandler(
   },
 );
 
-// ─── POST /webhook ───────────────────────────────────────
+
 
 export const fakeWebhook = asyncHandler(async (req: Request, res: Response) => {
   const signature = req.headers["x-webhook-signature"] as string;

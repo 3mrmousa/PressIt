@@ -5,7 +5,7 @@ import SidebarFooter from "./SidebarFooter";
 import { AlignJustify, X } from "lucide-react";
 import { useState } from "react";
 
-export default function Sidebar() {
+export default function Sidebar({ logoUrl, siteName }: { logoUrl?: string; siteName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -40,7 +40,7 @@ export default function Sidebar() {
           <X size={24} />
         </button>
 
-        <SidebarLogo />
+        <SidebarLogo logoUrl={logoUrl} siteName={siteName} />
         <SideBarLinks />
         <SidebarFooter />
       </div>

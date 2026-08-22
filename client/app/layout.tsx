@@ -3,12 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LayoutClient } from "./LayoutClient";
 import QueryClientWrapper from "@/providers/QueryClientWrapper";
-import { GoogleProvider } from "@/providers/GoogleProvider";  
+import { GoogleProvider } from "@/providers/GoogleProvider";
 import { Toaster } from "react-hot-toast";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
-
+import { getAdminSettings } from "@/features/settings/serverIndex";
 
 config.autoAddCss = false;
 
@@ -22,10 +22,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "PressIt — Image Compression",
-  description: "Compress images beautifully, right in your browser.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let settings;
+  try {
+    const res = await getAdminSettings();
+    settings = res?.data;
+  } catch (error) {}
+
+  return {
+    title: settings?.siteName || "PressIt",
+    description: settings?.siteDescription || "PressIt - Image Compression",
+    icons: {
+      icon: settings?.favicon?.secure_url || "/favicon.ico",
+    },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -38,36 +49,35 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-white`}
     >
       <body className="min-h-full flex flex-col bg-white">
-
         <QueryClientWrapper>
           <GoogleProvider>
-              <LayoutClient>{children}</LayoutClient>
-              <Toaster
-                position="bottom-right"
-                toastOptions={{
+            <LayoutClient>{children}</LayoutClient>
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: "#9333ea",
+                  color: "#fff",
+                  borderRadius: "8px",
+                },
+                success: {
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "#9333ea",
+                  },
+                },
+                error: {
                   style: {
-                    background: "#9333ea",
+                    background: "#ef4444",
                     color: "#fff",
-                    borderRadius: "8px",
                   },
-                  success: {
-                    iconTheme: {
-                      primary: "#fff",
-                      secondary: "#9333ea",
-                    },
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "#ef4444",
                   },
-                  error: {
-                    style: {
-                      background: "#ef4444",
-                      color: "#fff",
-                    },
-                    iconTheme: {
-                      primary: "#fff",
-                      secondary: "#ef4444",
-                    },
-                  },
-                }}
-              />
+                },
+              }}
+            />
           </GoogleProvider>
         </QueryClientWrapper>
       </body>

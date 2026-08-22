@@ -443,7 +443,7 @@ All endpoints are prefixed with `/api`. Authentication is via `access_token` htt
 ```mermaid
 erDiagram
     User {
-        ObjectId _id
+        ObjectId _id PK
         string firstName
         string lastName
         string email UK
@@ -458,7 +458,7 @@ erDiagram
     }
 
     Compress {
-        ObjectId _id
+        ObjectId _id PK
         ObjectId user FK "nullable"
         string imageName
         number originalSize
@@ -466,15 +466,15 @@ erDiagram
         number compressionPercentage
         string originalFormat
         string compressedFormat
-        object images "compressedImage.secureUrl, publicId"
+        object images "compressedImage secureUrl publicId"
         Date createdAt
     }
 
     FakeSubscription {
-        ObjectId _id
-        ObjectId user FK UK
-        string plan "plus | pro"
-        string status "active | canceled | past_due | paused"
+        ObjectId _id PK
+        ObjectId user FK "unique"
+        string plan "plus or pro"
+        string status "active canceled past_due paused"
         string fakeSubscriptionId UK
         number amount
         Date currentPeriodStart
@@ -482,16 +482,16 @@ erDiagram
     }
 
     AdminSettings {
-        ObjectId _id
-        string siteName "default: Sprintlyze"
-        object logo "secure_url, public_id"
-        object favicon "secure_url, public_id"
-        object subscriptionPrices "plus: 9.99, pro: 19.99"
+        ObjectId _id PK
+        string siteName "default Sprintlyze"
+        object logo "secure_url public_id"
+        object favicon "secure_url public_id"
+        object subscriptionPrices "plus 9.99 pro 19.99"
     }
 
     SystemLog {
-        ObjectId _id
-        string level "info | warning | error"
+        ObjectId _id PK
+        string level "info warning error"
         string message
         Mixed meta
         Date createdAt

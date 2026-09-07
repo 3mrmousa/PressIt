@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import { resetPassword } from "@/features/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useMutation } from "@tanstack/react-query";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -13,21 +13,14 @@ export default function ResetPasswordPage() {
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const resetPasswordMutaion = useMutation({
-    mutationFn: ({
-      email,
-      newPassword,
-    }: {
-      email: string;
-      newPassword: string;
-    }) => resetPassword(email, newPassword),
+  const resetMutation = useMutation({
+    mutationFn: () => resetPassword(email, newPassword),
     onSuccess: () => {
       router.push("/login");
       sessionStorage.removeItem("resetPasswordEmail");
     },
-    onError: (error: any) => {
-      if (error.message) setError(error.message);
+    onError: (err: any) => {
+      if (err.message) setError(err.message);
       else setError("Failed to reset password");
     },
   });
@@ -35,7 +28,8 @@ export default function ResetPasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !newPassword) return;
-    resetPasswordMutaion.mutate({ email, newPassword });
+    setError(null);
+    resetMutation.mutate();
   };
 
   useEffect(() => {
@@ -79,10 +73,10 @@ export default function ResetPasswordPage() {
           </div>
           <button
             type="submit"
-            disabled={resetPasswordMutaion.isPending}
-            className="w-1/2 mx-auto bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
+            disabled={resetMutation.isPending}
+            className="w-1/2 mx-auto bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50"
           >
-            {resetPasswordMutaion.isPending
+            {resetMutation.isPending
               ? "Resetting password..."
               : "Reset password"}
           </button>

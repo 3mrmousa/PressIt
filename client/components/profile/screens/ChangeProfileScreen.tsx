@@ -4,6 +4,7 @@ import { updateProfile } from "@/features/user";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { useMe } from "@/hooks/useMe";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function ChangeProfileScreen({
   dispatchAction,
@@ -11,6 +12,7 @@ export default function ChangeProfileScreen({
   dispatchAction: (action: SettingsTab) => void;
 }) {
   const { data } = useMe();
+  const queryClient = useQueryClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -21,22 +23,22 @@ export default function ChangeProfileScreen({
     data?.data?.lastName || ""
   );
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setIsLoading(true);
-      const res = await updateProfile(firstName, lastName);
+  const updateMutation = useMutation({
+    mutationFn: () => updateProfile(firstName, lastName),
+    onSuccess: (res) => {
       if (res) {
         toast.success("Profile updated successfully");
-        window.location.reload();
+        queryClient.invalidateQueries({ queryKey: ["me"] });
       }
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       toast.error(err.message || err.error || "Failed to update profile");
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate();
   };
 
   return (
@@ -90,10 +92,10 @@ export default function ChangeProfileScreen({
           </div>
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={updateMutation.isPending}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer mt-2 disabled:opacity-50"
           >
-            {isLoading ? "Updating..." : "Update Profile"}
+            {updateMutation.isPending ? "Updating..." : "Update Profile"}
           </button>
         </form>
       </div>

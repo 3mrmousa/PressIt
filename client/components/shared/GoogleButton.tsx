@@ -2,26 +2,23 @@
 
 import { googleLogin } from "@/features/auth";
 import { GoogleLogin } from "@react-oauth/google";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function GoogleButton() {
   const [error, setError] = useState("");
-  const queryClient = useQueryClient();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const googleMutation = useMutation({
     mutationFn: googleLogin,
-
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["me"],
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
       router.push("/");
     },
-    onError: (error: any) => {
-      setError(error.message);
+    onError: (err: any) => {
+      setError(err.message || "Google login failed");
     },
   });
 

@@ -4,15 +4,23 @@ import { MyLink } from "@/components/ui/MyLink";
 import { Card } from "@/components/ui/Card";
 import { HeaderStyled } from "@/components/ui/HeaderStyled";
 import { HeaderText } from "@/components/ui/HeaderText";
-import { Tag } from "@/components/ui/Tag";
 import {
   faBolt,
   faShieldHalved,
   faSliders,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { getMe } from "@/features/auth/serverIndex";
 
-export default function Home() {
+export default async function Home() {
+  let user = null;
+  try {
+    const res = await getMe();
+    user = res.data;
+  } catch (error) {
+    user = null;
+  }
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-linear-to-b from-white to-purple-50 font-sans pb-20">
       <div className="flex flex-col gap-10 items-center min-h-screen justify-center px-3">
@@ -33,23 +41,26 @@ export default function Home() {
       >
         <DropZone />
 
-        <div className="bg-purple-50/80 border border-purple-200 text-purple-800 
-        px-6 py-4 rounded-xl max-w-2xl text-center text-sm shadow-xs mx-4">
-          <strong className="font-semibold text-purple-900">
-            Privacy Notice:
-          </strong>{" "}
-          By default, your compressed images are securely saved to your account
-          history. If you prefer zero-storage, you can disable this anytime in
-          your{" "}
-          <Link
-            href="/profile"
-            className="underline font-semibold hover:text-purple-950"
+        {user && (
+          <div
+            className="bg-purple-50/80 border border-purple-200 text-purple-800 
+        px-6 py-4 rounded-xl max-w-2xl text-center text-sm shadow-xs mx-4"
           >
-            Profile Settings
-          </Link>
-          . When disabled, your images will not be saved anywhere.
-        </div>
-
+            <strong className="font-semibold text-purple-900">
+              Privacy Notice:
+            </strong>{" "}
+            By default, your compressed images are securely saved to your
+            account history. If you prefer zero-storage, you can disable this
+            anytime in your{" "}
+            <Link
+              href="/profile"
+              className="underline font-semibold hover:text-purple-950"
+            >
+              Profile Settings
+            </Link>
+            . When disabled, your images will not be saved anywhere.
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl px-6">
           <Card
             title="Lightning fast"

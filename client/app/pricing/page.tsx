@@ -15,8 +15,8 @@ import {
   createCheckout,
 } from "@/features/fake-subscription";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
 import { getAdminSettings } from "@/features/settings";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const PLANS = [
   {
@@ -72,45 +72,46 @@ const PLANS = [
 
 export default function PricingPage() {
   const { data: meData } = useMe();
-  const queryClient = useQueryClient();
   const user = meData?.data;
   const isLoggedIn = !!user;
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const currentPlan = user?.plan || "free";
 
-  const handleCheckout = async (priceId: string) => {
-    if (!user) return;
-    setCheckoutLoading(true);
-
-    try {
-      await createCheckout(priceId);
+  const checkoutMutation = useMutation({
+    mutationFn: (priceId: string) => createCheckout(priceId),
+    onSuccess: () => {
       toast.success("Checkout processed successfully");
       queryClient.invalidateQueries({ queryKey: ["me"] });
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       toast.error(
         err.message || "Something went wrong. Please try again later.",
       );
-    } finally {
-      setCheckoutLoading(false);
-    }
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelSubscription,
+    onSuccess: () => {
+      toast.success("Subscription cancelled successfully");
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.message || "Something went wrong. Please try again later.",
+      );
+    },
+  });
+
+  const handleCheckout = (priceId: string) => {
+    if (!user) return;
+    checkoutMutation.mutate(priceId);
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     if (!user) return;
-    setCheckoutLoading(true);
-
-    try {
-      await cancelSubscription();
-      toast.success("Checkout processed successfully");
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-    } catch (err: any) {
-      toast.error(
-        err.message || "Something went wrong. Please try again later.",
-      );
-    } finally {
-      setCheckoutLoading(false);
-    }
+    cancelMutation.mutate();
   };
 
   const [adminSettings, setAdminSettings] = useState<any>(null);
@@ -177,13 +178,13 @@ export default function PricingPage() {
               <div className="mb-6">
                 <span className="text-4xl font-bold text-gray-900">
                   {plan.id === "plus"
-                    ? (adminSettings?.subscriptionPrices?.plus
-                        ? adminSettings?.subscriptionPrices?.plus
-                        : plan.price)
+                    ? adminSettings?.subscriptionPrices?.plus
+                      ? adminSettings?.subscriptionPrices?.plus
+                      : plan.price
                     : plan.id === "pro"
-                      ? (adminSettings?.subscriptionPrices?.pro
-                          ? adminSettings?.subscriptionPrices?.pro
-                          : plan.price)
+                      ? adminSettings?.subscriptionPrices?.pro
+                        ? adminSettings?.subscriptionPrices?.pro
+                        : plan.price
                       : plan.price}
                 </span>
                 <span className="text-gray-500">{plan.period}</span>
@@ -231,10 +232,12 @@ export default function PricingPage() {
               ) : (
                 <button
                   onClick={() => handleCheckout(plan.priceId!)}
-                  disabled={checkoutLoading}
+                  disabled={checkoutMutation.isPending}
                   className="w-full py-3 rounded-full text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {checkoutLoading ? "Loading..." : `Upgrade to ${plan.name}`}
+                  {checkoutMutation.isPending
+                    ? "Loading..."
+                    : `Upgrade to ${plan.name}`}
                 </button>
               )}
             </div>
@@ -246,8 +249,8 @@ export default function PricingPage() {
           You can cancel from{" "}
           <button
             onClick={handleCancel}
-            disabled={checkoutLoading}
-            className="font-semibold text-md text-purple-600 cursor-pointer"
+            disabled={cancelMutation.isPending}
+            className="font-semibold text-md text-purple-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             here
           </button>

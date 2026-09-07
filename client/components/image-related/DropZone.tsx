@@ -5,10 +5,12 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function DropZone() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const queryClient = useQueryClient();
 
   const [originalImage, setOriginalImage] = useState<File | null>(null);
   const [originalPreview, setOriginalPreview] = useState<string>("");
@@ -23,7 +25,7 @@ export function DropZone() {
   async function downloadCompressed() {
     if (!compressedPreview) return;
 
-    const response = await fetch(compressedPreview);
+    await fetch(compressedPreview);
 
     const link = document.createElement("a");
     link.href = compressedPreview;
@@ -43,6 +45,16 @@ export function DropZone() {
     setOriginalPreview(URL.createObjectURL(file));
   };
 
+  const reupload = () => {
+    setOriginalImage(null);
+    setOriginalPreview("");
+    setCompressedPreview("");
+    setCompressedSize(0);
+    setQuality(50);
+    setLoading(false);
+    setIsDragging(false);
+  };
+
   useEffect(() => {
     if (!originalImage) return;
 
@@ -57,6 +69,7 @@ export function DropZone() {
         setCompressedPreview(result.secureUrl);
         setCompressedSize(result.compressedSize);
         toast.success("Image compressed successfully!");
+        queryClient.invalidateQueries({ queryKey: ["me"] });
       } catch (error: any) {
         setCompressedPreview("");
         setCompressedSize(0);
@@ -72,7 +85,7 @@ export function DropZone() {
   }, [originalImage, quality]);
 
   return (
-    <div className="w-full max-w-80 md:max-w-none min-h-75 md:min-h-115 flex flex-col items-center justify-center transition-all duration-300">
+    <div className="w-full max-w-80 sm:max-w-110 md:max-w-none min-h-75 md:min-h-115 flex flex-col items-center justify-center transition-all duration-300">
       {originalPreview && compressedPreview ? (
         <div className="mt-10 space-y-4 mb-8 w-full max-w-4xl">
           <div className="grid md:grid-cols-2 gap-8">
@@ -147,12 +160,20 @@ export function DropZone() {
             />
           </div>
 
-          <button
-            onClick={downloadCompressed}
-            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 mx-auto block cursor-pointer"
-          >
-            Download Compressed Image
-          </button>
+          <div className="flex gap-4 justify-center mt-6">
+            <button
+              onClick={downloadCompressed}
+              className="bg-purple-600 text-white px-6 py-2.5 rounded-lg hover:bg-purple-700 cursor-pointer font-medium transition-colors shadow-sm hover:shadow"
+            >
+              Download
+            </button>
+            <button
+              onClick={reupload}
+              className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-200 cursor-pointer font-medium transition-colors shadow-sm hover:shadow border border-gray-200"
+            >
+              Compress Another
+            </button>
+          </div>
         </div>
       ) : (
         <div className="bg-white rounded-2xl px-10 md:px-20 py-10 shadow-lg hover:shadow-xl transition-shadow duration-300">

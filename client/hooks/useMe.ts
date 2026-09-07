@@ -1,12 +1,17 @@
-import type { MeResponse } from "@/lib/types/types";
-import { getMe } from "@/features/auth";
 import { useQuery } from "@tanstack/react-query";
+import { getMe } from "@/features/auth";
 
 export function useMe() {
-  return useQuery<MeResponse>({
+  return useQuery({
     queryKey: ["me"],
-    queryFn: getMe,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
+    queryFn: async () => {
+      try {
+        const res = await getMe();
+        return res;
+      } catch (err: any) {
+        throw new Error(err.message || "Failed to fetch user");
+      }
+    },
+    retry: false,
   });
 }

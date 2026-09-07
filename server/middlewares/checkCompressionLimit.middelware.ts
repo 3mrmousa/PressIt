@@ -26,14 +26,17 @@ export const checkCompressionLimit = asyncHandler(
 
     const limit = LIMITS[tier] ?? LIMITS.guest;
 
+    const currentCountStr = await redis.get(key);
+    const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
+
+    if (currentCount >= limit) {
+      throw new AppError("Daily limit reached", 429);
+    }
+
     const count = await redis.incr(key);
 
     if (count === 1) {
       await redis.expire(key, 60 * 60 * 24);
-    }
-
-    if (count > limit) {
-      throw new AppError("Daily limit reached", 429);
     }
 
     next();

@@ -1,7 +1,7 @@
 "use client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMe } from "@/hooks/useMe";
 import { logout } from "@/features/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,27 +16,28 @@ const planColors: Record<string, string> = {
 
 export const Navbar = () => {
   const { data: response } = useMe();
+  const queryClient = useQueryClient();
 
   const userInfo: any = response?.data;
 
   const isLoggedIn = !!userInfo;
 
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   const [adminSettings, setAdminSettings] = useState<any>(null);
 
   const logoutMutation = useMutation({
     mutationFn: logout,
-
     onSuccess: () => {
       queryClient.setQueryData(["me"], null);
       router.push("/login");
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Logout error:", error);
     },
   });
+
+  const handleLogout = () => logoutMutation.mutate();
 
   useEffect(() => {
     const handleGetAdminSettings = async () => {
@@ -95,7 +96,7 @@ export const Navbar = () => {
             </Link>
 
             <button
-              onClick={() => logoutMutation.mutate()}
+              onClick={handleLogout}
               disabled={logoutMutation.isPending}
               className="text-sm md:text-md bg-purple-600 hover:bg-purple-700 text-white font-medium md:px-5 px-2 py-2 rounded-full transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >

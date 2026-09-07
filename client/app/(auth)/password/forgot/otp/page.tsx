@@ -1,9 +1,9 @@
 "use client";
 import { forgotPasswordOtp } from "@/features/auth";
-import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 export default function ForgotPasswordOtpPage() {
   const router = useRouter();
@@ -11,16 +11,15 @@ export default function ForgotPasswordOtpPage() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const verifyOtpMutaion = useMutation({
-    mutationFn: ({ email, otp }: { email: string; otp: string }) =>
-      forgotPasswordOtp(email, otp),
+  const otpMutation = useMutation({
+    mutationFn: () => forgotPasswordOtp(email, otp),
     onSuccess: () => {
       router.push("/password/reset");
       sessionStorage.setItem("resetPasswordEmail", email);
       sessionStorage.removeItem("forgotPasswordEmail");
     },
-    onError: (error: any) => {
-      if (error.message) setError(error.message);
+    onError: (err: any) => {
+      if (err.message) setError(err.message);
       else setError("Failed to verify OTP");
     },
   });
@@ -38,7 +37,8 @@ export default function ForgotPasswordOtpPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    verifyOtpMutaion.mutate({ email, otp });
+    setError(null);
+    otpMutation.mutate();
   };
 
   return (
@@ -63,10 +63,10 @@ export default function ForgotPasswordOtpPage() {
           />
           <button
             type="submit"
-            disabled={verifyOtpMutaion.isPending}
+            disabled={otpMutation.isPending}
             className="w-1/2 mx-auto bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
           >
-            {verifyOtpMutaion.isPending ? "Verifying OTP..." : "Verify OTP"}
+            {otpMutation.isPending ? "Verifying OTP..." : "Verify OTP"}
           </button>
           <Link
             href="/login"

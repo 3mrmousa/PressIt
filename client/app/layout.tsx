@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LayoutClient } from "./LayoutClient";
-import QueryClientWrapper from "@/providers/QueryClientWrapper";
+import { QueryProvider } from "@/providers/QueryProvider";
 import { GoogleProvider } from "@/providers/GoogleProvider";
 import { Toaster } from "react-hot-toast";
 
@@ -49,7 +49,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-white`}
     >
       <body className="min-h-full flex flex-col bg-white">
-        <QueryClientWrapper>
+        <QueryProvider>
           <GoogleProvider>
             <LayoutClient>{children}</LayoutClient>
             <Toaster
@@ -79,7 +79,7 @@ export default function RootLayout({
               }}
             />
           </GoogleProvider>
-        </QueryClientWrapper>
+        </QueryProvider>
       </body>
     </html>
   );

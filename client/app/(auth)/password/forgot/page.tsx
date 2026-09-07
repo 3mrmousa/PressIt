@@ -2,22 +2,22 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import { forgotPassword } from "@/features/auth";
+import { useMutation } from "@tanstack/react-query";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const forgotPasswordMutaion = useMutation({
+  const forgotMutation = useMutation({
     mutationFn: (email: string) => forgotPassword(email),
     onSuccess: () => {
       sessionStorage.setItem("forgotPasswordEmail", email);
       router.push("/password/forgot/otp");
     },
-    onError: (error: any) => {
-      if (error.message) setError(error.message);
+    onError: (err: any) => {
+      if (err.message) setError(err.message);
       else setError("Failed to send OTP");
     },
   });
@@ -25,7 +25,8 @@ export default function ForgotPasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    forgotPasswordMutaion.mutate(email);
+    setError(null);
+    forgotMutation.mutate(email);
   };
 
   return (
@@ -50,10 +51,10 @@ export default function ForgotPasswordPage() {
           />
           <button
             type="submit"
-            disabled={forgotPasswordMutaion.isPending}
+            disabled={forgotMutation.isPending}
             className="w-1/2 mx-auto bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
           >
-            {forgotPasswordMutaion.isPending ? "Sending OTP..." : "Continue"}
+            {forgotMutation.isPending ? "Sending OTP..." : "Continue"}
           </button>
           <Link
             href="/login"

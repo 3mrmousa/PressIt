@@ -158,12 +158,11 @@ export default function ProfilePage() {
                     </p>
                     <div className="flex justify-between items-center mt-0.5">
                       <p className="text-sm font-semibold text-gray-800">
-                        {userInfo.usage?.count || 0} /{" "}
-                        {userInfo.usage?.limit || 0}
+                        {Math.min(userInfo.usage?.count || 0, userInfo.usage?.limit || 1)} / {userInfo.usage?.limit || 1}
                       </p>
                       <p className="text-xs font-semibold text-emerald-600">
                         {Math.round(
-                          ((userInfo.usage?.count || 0) /
+                          (Math.min(userInfo.usage?.count || 0, userInfo.usage?.limit || 1) /
                             (userInfo.usage?.limit || 1)) *
                             100,
                         )}
@@ -172,7 +171,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="w-full bg-emerald-200/50 rounded-full h-1.5 mt-1 overflow-hidden">
                       <div
-                        className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
+                        className="bg-emerald-500 h-1.5 rounded-full"
                         style={{
                           width: `${Math.min(((userInfo.usage?.count || 0) / (userInfo.usage?.limit || 1)) * 100, 100)}%`,
                         }}

@@ -1,6 +1,7 @@
 import { deleteFromCloudinary } from "../../utils/deleteFromCloudinary.js";
 import AppError from "../../utils/errors/AppError.js";
 import { uploadLogoToCloudinary } from "../../utils/uploadToCloudinary.js";
+import FakeSubscription from "../fake-subscription/fake-subscription.model.js";
 import User from "../user/user.model.js";
 import AdminSettings from "./admin.model.js";
 import SystemLog from "./log.model.js";
@@ -31,15 +32,18 @@ export const createManagerService = async (
 export const getAllManagersService = async (page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
 
-  const [managers, total] =
-    await Promise.all([
-      User.find({role: "manager"}).select("-__v -password").skip(skip).limit(limit).lean(),
-      User.countDocuments({ role: "manager" }),
-    ]);
+  const [managers, total] = await Promise.all([
+    User.find({ role: "manager" })
+      .select("-__v -password")
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    User.countDocuments({ role: "manager" }),
+  ]);
 
   return {
     managers,
-    total
+    total,
   };
 };
 
@@ -75,7 +79,7 @@ export const updateAdminSettingsService = async (
   favicon?: Buffer,
 ) => {
   let settings = await AdminSettings.findOne();
-  
+
   let logo_secure_url, logo_public_id;
   if (logo) {
     const uploaded = await uploadLogoToCloudinary(logo);
@@ -93,30 +97,43 @@ export const updateAdminSettingsService = async (
   if (!settings) {
     settings = await AdminSettings.create({
       ...(siteName && { siteName }),
-      subscriptionPrices: { 
-        ...(plus !== undefined && { plus }), 
-        ...(pro !== undefined && { pro }) 
+      subscriptionPrices: {
+        ...(plus !== undefined && { plus }),
+        ...(pro !== undefined && { pro }),
       },
-      ...(logo && { logo: { secure_url: logo_secure_url, public_id: logo_public_id } }),
-      ...(favicon && { favicon: { secure_url: favicon_secure_url, public_id: favicon_public_id } }),
+      ...(logo && {
+        logo: { secure_url: logo_secure_url, public_id: logo_public_id },
+      }),
+      ...(favicon && {
+        favicon: {
+          secure_url: favicon_secure_url,
+          public_id: favicon_public_id,
+        },
+      }),
     });
   } else {
     if (siteName !== undefined) settings.siteName = siteName;
-    
+
     if (logo !== undefined && logo_secure_url && logo_public_id) {
       if (settings.logo?.public_id) {
         await deleteFromCloudinary(settings.logo?.public_id);
       }
-      settings.logo = { secure_url: logo_secure_url, public_id: logo_public_id };
+      settings.logo = {
+        secure_url: logo_secure_url,
+        public_id: logo_public_id,
+      };
     }
-    
+
     if (favicon !== undefined && favicon_secure_url && favicon_public_id) {
       if (settings.favicon?.public_id) {
         await deleteFromCloudinary(settings.favicon?.public_id);
       }
-      settings.favicon = { secure_url: favicon_secure_url, public_id: favicon_public_id };
+      settings.favicon = {
+        secure_url: favicon_secure_url,
+        public_id: favicon_public_id,
+      };
     }
-    
+
     if (plus !== undefined) {
       settings.subscriptionPrices.plus = plus;
     }
@@ -147,15 +164,18 @@ export const deleteAllSystemLogsService = async () => {
 export const getAllUsersService = async (page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
 
-  const [users, total] =
-    await Promise.all([
-      User.find({role: "user"}).select("-__v -password").skip(skip).limit(limit).lean(),
-      User.countDocuments({ role: "user" }),
-    ]);
+  const [users, total] = await Promise.all([
+    User.find({ role: "user" })
+      .select("-__v -password")
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    User.countDocuments({ role: "user" }),
+  ]);
 
   return {
     users,
-    total
+    total,
   };
 };
 
@@ -178,6 +198,7 @@ export const deleteUserService = async (userId: string) => {
     throw new AppError("This user is not a user", 400);
   }
 
+  await FakeSubscription.deleteMany({ userId: user.id });
   await user.deleteOne();
 
   return user;

@@ -6,8 +6,8 @@
 
 ```mermaid
 graph LR
-    Client["Client (Next.js :3000)"] -->|REST API| Server["Server (Express :3001)"]
-    Admin["Admin (Next.js :3001)"] -->|REST API| Server
+    Client["Client (Next.js :3001)"] -->|REST API| Server["Server (Express :3000)"]
+    Admin["Admin (Next.js :3002)"] -->|REST API| Server
     Admin -->|WebSocket| Server
     Server --> MongoDB[(MongoDB)]
     Server --> Redis[(Redis)]
@@ -223,11 +223,11 @@ npm install
 Create `server/.env`:
 
 ```env
-PORT=3001
+PORT=3000
 MONGODB_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 NODE_ENV=development
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
+ALLOWED_ORIGINS=http://localhost:3001,http://localhost:3002
 
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password
@@ -240,8 +240,6 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 REDIS_URL=your_redis_url
 
-CLIENT_URL=http://localhost:3000
-
 FAKE_WEBHOOK_SECRET=your_webhook_secret
 ```
 
@@ -251,7 +249,7 @@ Start the server:
 npm run dev
 ```
 
-Server runs on `http://localhost:3001`.
+Server runs on `http://localhost:3000`.
 
 ### 2. Client Setup
 
@@ -263,15 +261,15 @@ npm install
 Create `client/.env`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ```bash
-npm run dev
+npm run dev -- -p 3001
 ```
 
-Client runs on `http://localhost:3000`.
+Client runs on `http://localhost:3001`.
 
 ### 3. Admin Setup
 
@@ -283,15 +281,15 @@ npm install
 Create `admin/.env`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ```bash
-npm run dev
+npm run dev -- -p 3002
 ```
 
-Admin runs on `http://localhost:3001` (or the next available port).
+Admin runs on `http://localhost:3002`.
 
 > **Note**: An admin user must be created directly in the database (set `role: "admin"`) since there is no self-registration flow for admin accounts.
 
@@ -303,11 +301,11 @@ Admin runs on `http://localhost:3001` (or the next available port).
 
 | Variable | Required | Description |
 |---|---|---|
-| `PORT` | Yes | Server port (default: `3001`) |
+| `PORT` | Yes | Server port (default: `3000`) |
 | `MONGODB_URL` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Secret for signing JWT tokens |
 | `NODE_ENV` | No | `development` or `production` |
-| `ALLOWED_ORIGINS` | No | Comma-separated allowed CORS/CSRF origins |
+| `ALLOWED_ORIGINS` | No | Comma-separated allowed CORS/CSRF origins (e.g., `http://localhost:3001,http://localhost:3002`) |
 | `EMAIL_USER` | Yes | Gmail address for sending OTP emails |
 | `EMAIL_PASS` | Yes | Gmail app password |
 | `GOOGLE_CLIENT_ID` | Yes | Google OAuth 2.0 Client ID |
@@ -315,14 +313,13 @@ Admin runs on `http://localhost:3001` (or the next available port).
 | `CLOUDINARY_API_KEY` | Yes | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret |
 | `REDIS_URL` | Yes | Redis connection URL |
-| `CLIENT_URL` | No | Client app URL |
 | `FAKE_WEBHOOK_SECRET` | No | HMAC secret for subscription webhooks |
 
 ### Client & Admin (`client/.env`, `admin/.env`)
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | Yes | Server API base URL (e.g., `http://localhost:3001/api`) |
+| `NEXT_PUBLIC_API_URL` | Yes | Server API base URL (e.g., `http://localhost:3000/api`) |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Yes | Google OAuth 2.0 Client ID |
 
 ---
@@ -594,7 +591,7 @@ npm run lint      # Run ESLint
 | `CORS: origin not allowed` | Add your frontend URL to `ALLOWED_ORIGINS` in `server/.env` (comma-separated). |
 | Admin login redirects to `/login` | Only users with `role: "admin"` or `role: "manager"` can access the dashboard. Create an admin user directly in MongoDB. |
 | OTP emails not sending | Ensure `EMAIL_USER` and `EMAIL_PASS` are set. Use a Gmail App Password (not your account password). |
-| Port conflicts | Server defaults to `:3001`, Client to `:3000`. Admin will auto-increment if `:3001` is taken. |
+| Port conflicts | Server defaults to `:3000`, Client to `:3001`, and Admin to `:3002`. Ensure Next.js dev commands run with the respective ports (`-p 3001` and `-p 3002`). |
 | `JWT secret not found` | Set `JWT_SECRET` in `server/.env` with a strong random string. |
 | Images not loading in Next.js | `res.cloudinary.com` is configured in `next.config.ts` `remotePatterns`. Ensure Cloudinary credentials are correct. |
 

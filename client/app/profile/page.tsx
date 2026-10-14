@@ -60,9 +60,9 @@ export default function ProfilePage() {
             </button>
             <div className="px-8 flex justify-center -mt-16 mb-4">
               <div className="relative h-32 w-32 bg-white rounded-full p-2 shadow-lg">
-                {userInfo.profilePicture ? (
+                {userInfo.profilePicture?.secure_url ? (
                   <img
-                    src={userInfo.profilePicture}
+                    src={userInfo.profilePicture?.secure_url}
                     alt="Profile"
                     className="h-full w-full rounded-full object-cover"
                   />

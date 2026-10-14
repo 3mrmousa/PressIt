@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import AppError from "../utils/errors/AppError.js";
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") ?? [
-  "http://localhost:3000",
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : ["http://localhost:3001", "http://localhost:3002"];
 
 export const csrfMiddleware = (
   req: Request,

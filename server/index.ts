@@ -23,9 +23,13 @@ import { Server } from "socket.io";
 const app = express();
 const httpServer = createServer(app);
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : ["http://localhost:3001", "http://localhost:3002"];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -43,9 +47,6 @@ export { io };
 
 app.use(helmet());
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") ?? [
-  "http://localhost:3000",
-];
 app.use(
   cors({
     origin: (origin, callback) => {

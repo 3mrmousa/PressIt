@@ -24,7 +24,7 @@ const httpServer = createServer(app); // Create HTTP server from Express
 // Initialize Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:3000"], // allow your frontend
+    origin: ["http://localhost:3001", "http://localhost:3002"], // allow your frontend (client & admin)
     methods: ["GET", "POST"]
   }
 });

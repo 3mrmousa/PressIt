@@ -72,7 +72,7 @@ export default function LogsPage() {
 
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-      "http://localhost:3001";
+      "http://localhost:3000";
     const socket: Socket = io(backendUrl, {
       withCredentials: true,
     });

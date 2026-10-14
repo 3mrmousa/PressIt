@@ -1,4 +1,5 @@
 import AppError from "../../utils/errors/AppError.js";
+import FakeSubscription from "../fake-subscription/fake-subscription.model.js";
 import User from "./user.model.js";
 
 export const updateUserProfileService = async (
@@ -50,5 +51,7 @@ export const deleteUserService = async (userId: string) => {
   if (!user) {
     throw new AppError("User not found", 404);
   }
+  await FakeSubscription.deleteMany({ userId: user.id });
+
   return "User deleted successfully";
 };

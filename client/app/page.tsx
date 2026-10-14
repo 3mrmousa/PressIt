@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getMe } from "@/features/auth/serverIndex";
+import RadialGlow from "@/components/ui/RadialGlow";
 
 export default async function Home() {
   let user = null;
@@ -24,6 +25,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-linear-to-b from-white to-purple-50 font-sans pb-20">
       <div className="flex flex-col gap-10 items-center min-h-screen justify-center px-3">
+        <RadialGlow zIndex={0} />
         <HeaderText className="flex flex-col items-center justify-center">
           <p>Shrink images.</p> <HeaderStyled>Keep the quality.</HeaderStyled>
         </HeaderText>

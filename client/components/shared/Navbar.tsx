@@ -79,9 +79,9 @@ export const Navbar = () => {
             </Link>
             <Link href="/profile" className="flex items-center gap-2">
               <span>
-                {userInfo.profilePicture ? (
+                {userInfo.profilePicture?.secure_url ? (
                   <img
-                    src={userInfo.profilePicture}
+                    src={userInfo.profilePicture.secure_url}
                     alt={userInfo.firstName}
                     className="w-8 h-8 rounded-full object-cover"
                   />
